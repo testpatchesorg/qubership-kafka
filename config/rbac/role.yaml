@@ -1,0 +1,137 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - qubership.org
+  resources:
+  - akhqconfigs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - qubership.org
+  resources:
+  - akhqconfigs/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - qubership.org
+  resources:
+  - akhqconfigs/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - qubership.org
+  resources:
+  - kafkas
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - qubership.org
+  resources:
+  - kafkas/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - qubership.org
+  resources:
+  - kafkas/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - qubership.org
+  resources:
+  - kafkaservices
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - qubership.org
+  resources:
+  - kafkaservices/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - qubership.org
+  resources:
+  - kafkaservices/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - qubership.org
+  resources:
+  - kafkausers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - qubership.org
+  resources:
+  - kafkausers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - qubership.org
+  resources:
+  - kafkausers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - qubership.org
+  resources:
+  - kmmconfigs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - qubership.org
+  resources:
+  - kmmconfigs/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - qubership.org
+  resources:
+  - kmmconfigs/status
+  verbs:
+  - get
+  - patch
+  - update

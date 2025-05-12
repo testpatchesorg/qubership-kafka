@@ -1,0 +1,50 @@
+domain: qubership.org
+layout:
+- go.kubebuilder.io/v3
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
+projectName: kafka-service-operator
+repo: github.com/Netcracker/qubership-kafka
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: qubership.org
+  kind: KafkaService
+  path: github.com/Netcracker/qubership-kafka/api/v7
+  version: v7
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: qubership.org
+  kind: KmmConfig
+  path: github.com/Netcracker/qubership-kafka/api/v1
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: qubership.org
+  kind: AkhqConfig
+  path: github.com/Netcracker/qubership-kafka/api/v1
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: qubership.org
+  kind: Kafka
+  path: github.com/Netcracker/qubership-kafka/api/v1
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: qubership.org
+  kind: KafkaUser
+  path: github.com/Netcracker/qubership-kafka/api/v1
+  version: v1
+version: "3"
