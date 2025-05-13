@@ -62,7 +62,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 The most common Kafka-services operator chart related resources labels
 */}}
 {{- define "kafka-services.coreLabels" -}}
-app.kubernetes.io/version: '{{ .Values.ARTIFACT_DESCRIPTOR_VERSION | trunc 63 | trimAll "-_." }}'
+app.kubernetes.io/version: '{{ .Values.ARTIFACT_DESCRIPTOR_VERSION | trunc 63 | trimAll "-_." | toString }}'
 app.kubernetes.io/part-of: '{{ .Values.PART_OF }}'
 {{- end -}}
 

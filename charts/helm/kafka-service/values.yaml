@@ -709,3 +709,12 @@ cruiseControl:
     limits:
       memory: "1024Mi"
       cpu: "400m"
+# Cloud Release Integration
+# The name of the Service exposed for the database.
+SERVICE_NAME: "kafka-services"
+# Microservice belonging to a group
+PART_OF: "kafka-services"
+# Delimiter for labels
+DELIMITER: "-"
+# Artifact descriptor version which is installed.
+ARTIFACT_DESCRIPTOR_VERSION: ""  # TO_BE_REPLACED
