@@ -83,6 +83,9 @@ func mainApiGroup() string {
 func duplicateScheme(apiGroup string) (*runtime.Scheme, error) {
 	dblScheme := runtime.NewScheme()
 	err := clientgoscheme.AddToScheme(dblScheme)
+	if err != nil {
+		return nil, err
+	}
 	additionalGroupVersion := schema.GroupVersion{Group: apiGroup, Version: "v1"}
 	additionalSchemeBuilder := &sigsScheme.Builder{GroupVersion: additionalGroupVersion}
 	additionalSchemeBuilder.Register(&qubershiporgv1.AkhqConfig{}, &qubershiporgv1.AkhqConfigList{})

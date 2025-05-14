@@ -47,7 +47,7 @@ func (wrk *Pool) Start() error {
 
 func (wrk *Pool) runJobs(apiGroup, secondApiGroup string) error {
 	var err error
-	//ctx := ctrl.SetupSignalHandler()
+
 	for _, j := range wrk.jbs {
 		err = wrk.run(j, apiGroup)
 		if err != nil {

@@ -17,7 +17,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"github.com/Netcracker/qubership-kafka/cfg"
 	"github.com/Netcracker/qubership-kafka/workers"
 	"os"
@@ -48,7 +47,7 @@ func main() {
 	var appOpts cfg.Cfg
 	_, err := flags.Parse(&appOpts)
 	if err != nil {
-		setupLog.Error(err, fmt.Sprintf("unable to parse config"))
+		setupLog.Error(err, "unable to parse config")
 		os.Exit(1)
 	}
 
@@ -59,7 +58,7 @@ func main() {
 	go func() {
 		err = pool.Start()
 		if err != nil {
-			setupLog.Error(err, fmt.Sprintf("failed to start worker pool"))
+			setupLog.Error(err, "failed to start worker pool")
 			stop()
 			return
 		}

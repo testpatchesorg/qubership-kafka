@@ -30,13 +30,13 @@ func (rj KafkaUserJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string,
 			logger.Error(err, "duplicate scheme error", "group", opts.ApiGroup)
 			return nil, err
 		}
-		port = port + 10
+		port += 10
 	}
 
 	kafkaUsersMgrOptions := ctrl.Options{
 		Scheme:                  runScheme,
 		MetricsBindAddress:      "0",
-		Port:                    9544,
+		Port:                    port,
 		HealthProbeBindAddress:  "0",
 		LeaderElection:          opts.EnableLeaderElection,
 		LeaderElectionNamespace: opts.OwnNamespace,

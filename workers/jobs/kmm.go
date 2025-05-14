@@ -30,7 +30,7 @@ func (rj KmmJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string, logge
 			logger.Error(err, "duplicate scheme error", "group", opts.ApiGroup)
 			return nil, err
 		}
-		port = port + 10
+		port += 10
 	}
 
 	namespace, err := getWatchNamespace()

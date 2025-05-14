@@ -29,7 +29,7 @@ func (rj AkhqJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string, logg
 			logger.Error(err, "duplicate scheme error")
 			return nil, err
 		}
-		port = port + 10
+		port += 10
 	}
 
 	akhqOpts := ctrl.Options{
