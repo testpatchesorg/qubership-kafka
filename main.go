@@ -18,12 +18,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/Netcracker/qubership-kafka/cfg"
 	"github.com/Netcracker/qubership-kafka/workers"
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/Netcracker/qubership-kafka/util"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -46,7 +45,7 @@ func main() {
 	opts.BindFlags(flag.CommandLine)
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
-	var appOpts util.Cfg
+	var appOpts cfg.Cfg
 	_, err := flags.Parse(&appOpts)
 	if err != nil {
 		setupLog.Error(err, fmt.Sprintf("unable to parse config"))

@@ -2,21 +2,21 @@ package workers
 
 import (
 	"context"
-	"github.com/Netcracker/qubership-kafka/util"
+	"github.com/Netcracker/qubership-kafka/cfg"
 	"github.com/Netcracker/qubership-kafka/workers/jobs"
 	"github.com/go-logr/logr"
 	"golang.org/x/sync/errgroup"
 )
 
 type Pool struct {
-	opts       util.Cfg
+	opts       cfg.Cfg
 	log        logr.Logger
 	workerPool *errgroup.Group
 	jbs        []jobs.Job
 	ctx        context.Context
 }
 
-func NewPool(ctx context.Context, opts util.Cfg, logger logr.Logger) *Pool {
+func NewPool(ctx context.Context, opts cfg.Cfg, logger logr.Logger) *Pool {
 	wrk := &Pool{opts: opts,
 		log: logger}
 	wrk.workerPool, wrk.ctx = errgroup.WithContext(ctx)

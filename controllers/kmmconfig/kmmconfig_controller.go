@@ -17,6 +17,7 @@ package kmmconfig
 import (
 	"context"
 	"fmt"
+	"github.com/Netcracker/qubership-kafka/controllers"
 	"github.com/Netcracker/qubership-kafka/util"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -50,8 +51,9 @@ func (c configurationError) Error() string {
 type KmmConfigReconciler struct {
 	// This client, initialized using mgr.Client() above, is a split client
 	// that reads objects from the cache and writes to the apiserver
-	Client client.Client
-	Scheme *runtime.Scheme
+	Client   client.Client
+	Scheme   *runtime.Scheme
+	ApiGroup string
 }
 
 //+kubebuilder:rbac:groups=qubership.org,resources=kmmconfigs,verbs=get;list;watch;create;update;patch;delete
@@ -74,6 +76,10 @@ func (r *KmmConfigReconciler) Reconcile(ctx context.Context, request ctrl.Reques
 		}
 		// Error reading the object - requeue the request.
 		return reconcile.Result{}, err
+	}
+
+	if !controllers.ApiGroupMatches(instance.APIVersion, r.ApiGroup) {
+		return reconcile.Result{}, nil
 	}
 
 	errorsMap := map[string][]string{"sourceDc": {}, "targetDc": {}}

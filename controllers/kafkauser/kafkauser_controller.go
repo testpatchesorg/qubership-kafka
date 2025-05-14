@@ -67,6 +67,7 @@ type KafkaUserReconciler struct {
 	KafkaSaslMechanism    string
 	KafkaSslEnabled       bool
 	KafkaSslSecret        string
+	ApiGroup              string
 }
 
 //+kubebuilder:rbac:groups=qubership.org,resources=kafkausers,verbs=get;list;watch;create;update;patch;delete
@@ -88,6 +89,10 @@ func (r *KafkaUserReconciler) Reconcile(ctx context.Context, request ctrl.Reques
 			return ctrl.Result{}, nil
 		}
 		return ctrl.Result{}, err
+	}
+
+	if !controllers.ApiGroupMatches(instance.APIVersion, r.ApiGroup) {
+		return ctrl.Result{}, nil
 	}
 
 	specHashKey := util.JoinNames(instance.Namespace, instance.Name, specName)

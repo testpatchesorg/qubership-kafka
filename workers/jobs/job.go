@@ -5,6 +5,7 @@ import (
 	"fmt"
 	qubershiporgv1 "github.com/Netcracker/qubership-kafka/api/v1"
 	qubershiporgv7 "github.com/Netcracker/qubership-kafka/api/v7"
+	"github.com/Netcracker/qubership-kafka/cfg"
 	"github.com/Netcracker/qubership-kafka/util"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -31,7 +32,7 @@ func init() {
 type Exec func() error
 
 type Job interface {
-	Build(ctx context.Context, opts util.Cfg, apiGroup string, logger logr.Logger) (Exec, error)
+	Build(ctx context.Context, opts cfg.Cfg, apiGroup string, logger logr.Logger) (Exec, error)
 }
 
 // getWatchNamespace returns the Namespace the operator should be watching for changes

@@ -4,56 +4,62 @@ import (
 	"context"
 	"fmt"
 	"github.com/Netcracker/qubership-kafka/cfg"
-	"github.com/Netcracker/qubership-kafka/controllers/akhqconfig"
+	"github.com/Netcracker/qubership-kafka/controllers/kmmconfig"
 	"github.com/go-logr/logr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 )
 
-const AkhqJobName = "akhq"
+const kmmJobName = "kmm"
 
-type AkhqJob struct {
+type KmmJob struct {
 }
 
-func (rj AkhqJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string, logger logr.Logger) (Exec, error) {
+func (rj KmmJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string, logger logr.Logger) (Exec, error) {
 	var err error
-	if opts.Mode == cfg.KafkaMode && len(opts.WatchAkhqCollectNamespace) == 0 {
+
+	if opts.Mode == cfg.KafkaMode && !opts.KmmEnabled {
 		return nil, nil
 	}
 
 	runScheme := scheme
-	port := 9542
+	port := 9543
 	if mainApiGroup() != apiGroup {
 		runScheme, err = duplicateScheme(apiGroup)
 		if err != nil {
-			logger.Error(err, "duplicate scheme error")
+			logger.Error(err, "duplicate scheme error", "group", opts.ApiGroup)
 			return nil, err
 		}
 		port = port + 10
 	}
 
-	akhqOpts := ctrl.Options{
+	namespace, err := getWatchNamespace()
+	if err != nil {
+		logger.Error(err, "Failed to get watch namespace")
+		return nil, err
+	}
+
+	kmmMgrOpts := ctrl.Options{
 		Scheme:                  runScheme,
 		MetricsBindAddress:      "0",
 		Port:                    port,
 		HealthProbeBindAddress:  "0",
 		LeaderElection:          opts.EnableLeaderElection,
 		LeaderElectionNamespace: opts.OwnNamespace,
-		LeaderElectionID:        fmt.Sprintf("akhqconfig.%s.%s", opts.OwnNamespace, opts.ApiGroup),
+		LeaderElectionID:        fmt.Sprintf("kmmconfig.%s.%s", opts.OwnNamespace, apiGroup),
 	}
+	configureManagerNamespaces(&kmmMgrOpts, namespace, opts.OwnNamespace)
 
-	configureManagerNamespaces(&akhqOpts, opts.WatchAkhqCollectNamespace, opts.OwnNamespace)
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), akhqOpts)
+	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), kmmMgrOpts)
 	if err != nil {
-		logger.Error(err, fmt.Sprintf("unable to start %s manager", AkhqJobName))
+		logger.Error(err, fmt.Sprintf("unable to start %s manager", kmmJobName))
 		return nil, err
 	}
 
-	err = (&akhqconfig.AkhqConfigReconciler{
-		Client:    mgr.GetClient(),
-		Scheme:    mgr.GetScheme(),
-		Namespace: opts.OwnNamespace,
-		ApiGroup:  apiGroup,
+	err = (&kmmconfig.KmmConfigReconciler{
+		Client:   mgr.GetClient(),
+		Scheme:   mgr.GetScheme(),
+		ApiGroup: apiGroup,
 	}).SetupWithManager(mgr)
 
 	if err != nil {
@@ -64,7 +70,6 @@ func (rj AkhqJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string, logg
 		logger.Error(err, "unable to set up health check")
 		return nil, err
 	}
-
 	if err = mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
 		logger.Error(err, "unable to set up ready check")
 		return nil, err
@@ -72,12 +77,12 @@ func (rj AkhqJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string, logg
 
 	exec := func() error {
 		defer func() {
-			logger.Info("akhq config manager goroutine has been finished")
+			logger.Info("KmmConfig manager goroutine has been finished")
 		}()
 
-		logger.Info("starting akhq config manager")
+		logger.Info("starting KmmConfig manager")
 		if err = mgr.Start(ctx); err != nil {
-			logger.Error(err, "akhq config manager stopped due to error")
+			logger.Error(err, "problem running KmmConfig manager")
 			return err
 		}
 		return nil

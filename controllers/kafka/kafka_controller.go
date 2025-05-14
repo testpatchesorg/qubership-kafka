@@ -82,6 +82,10 @@ func (r *KafkaReconciler) Reconcile(ctx context.Context, request ctrl.Request) (
 		// Error reading the object - requeue the request.
 		return reconcile.Result{}, err
 	}
+
+	if !controllers.ApiGroupMatches(instance.APIVersion, r.ApiGroup) {
+		return reconcile.Result{}, nil
+	}
 	r.StatusUpdater = NewStatusUpdater(r.Client, instance)
 
 	specHash, err := util.Hash(instance.Spec)
