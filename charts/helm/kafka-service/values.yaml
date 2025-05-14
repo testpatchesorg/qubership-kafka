@@ -131,6 +131,7 @@ operator:
   dockerImage: ghcr.io/netcracker/qubership-kafka-service-operator:main
   replicas: 1
   apiGroup: "qubership.org"
+  secondaryApiGroup: ""
   kmmConfiguratorEnabled: false
   resources:
     requests:
