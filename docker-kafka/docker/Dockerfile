@@ -1,28 +1,4 @@
-FROM golang:1.22.5-alpine3.20 as builder
-
-WORKDIR /workspace
-# Copy the Go Modules manifests
-COPY go.mod go.mod
-COPY go.sum go.sum
-# cache deps before building and copying source so that we don't need to re-download as much
-# and so that source changes don't invalidate our downloaded layer
-RUN go mod download
-
-# Copy the go source
-COPY main.go main.go
-
-# Install misc tools
-RUN set -x \
-    && apk add --update --no-cache \
-        gcc \
-        musl-dev
-
-# Tests
-#RUN go test -v ./...
-# Build
-RUN GOOS=linux GOARCH=amd64 GO111MODULE=on go build -tags musl -a -o kafka-assistant main.go
-
-FROM eclipse-temurin:11.0.24_8-jre-alpine
+FROM eclipse-temurin:21.0.2_13-jre-alpine
 
 ENV KAFKA_HOME=/opt/kafka \
     KAFKA_DATA_DIRS=/var/opt/kafka/data \
@@ -31,7 +7,6 @@ ENV KAFKA_HOME=/opt/kafka \
     KCAT_CONFIG=/opt/kafka/bin/kcat.properties
 
 WORKDIR /
-COPY --from=builder --chown=${USER_UID} /workspace/kafka-assistant .
 
 # Install misc tools
 RUN set -x \
@@ -78,24 +53,29 @@ RUN set -x \
     && rm -rf ${DISTR_DIR}
 
 ARG TMP_DIR="/tmp"
+ARG TARGETARCH
 # Download and install async-profiler
 RUN set -x \
+    && if [ "${TARGETARCH}" = "amd64" ]; then export AP_ARCH="x64"; \
+       elif [ "${TARGETARCH}" = "arm64" ]; then export AP_ARCH="arm64"; \
+       else echo "Unsupported architecture: ${TARGETARCH}" && exit 1; fi \
     && wget \
         --no-check-certificate \
         -nv \
-        -O ${TMP_DIR}/async-profiler-3.0-linux-x64.tar.gz \
-        "https://github.com/async-profiler/async-profiler/releases/download/v3.0/async-profiler-3.0-linux-x64.tar.gz" \
-    && tar -xzf /tmp/async-profiler-3.0-linux-x64.tar.gz -C /opt/ \
-    && ln -s /opt/async-profiler-3.0-linux-x64/profiler.sh /usr/local/bin/profiler \
-    && rm -f ${TMP_DIR}/async-profiler-3.0-linux-x64.tar.gz
+        -O ${TMP_DIR}/async-profiler-3.0-linux-${AP_ARCH}.tar.gz \
+        "https://github.com/async-profiler/async-profiler/releases/download/v3.0/async-profiler-3.0-linux-${AP_ARCH}.tar.gz" \
+    && tar -xzf /tmp/async-profiler-3.0-linux-${AP_ARCH}.tar.gz -C /opt/ \
+    && ln -s /opt/async-profiler-3.0-linux-${AP_ARCH}/profiler.sh /usr/local/bin/profiler \
+    && rm -f ${TMP_DIR}/async-profiler-3.0-linux-${AP_ARCH}.tar.gz
 
 # Download kafkactl
 ARG KAFKACTL_VERSION="3.5.1"
+
 RUN set -x \
     && wget \
         -nv \
         -O /tmp/kafkactl.tar.gz \
-        "https://github.com/deviceinsight/kafkactl/releases/download/v${KAFKACTL_VERSION}/kafkactl_${KAFKACTL_VERSION}_linux_amd64.tar.gz" \
+        "https://github.com/deviceinsight/kafkactl/releases/download/v${KAFKACTL_VERSION}/kafkactl_${KAFKACTL_VERSION}_linux_${TARGETARCH}.tar.gz" \
     && tar -zxvf /tmp/kafkactl.tar.gz -C /usr/bin \
     && chmod +x /usr/bin/kafkactl \
     && rm -f /tmp/kafkactl.tar.gz

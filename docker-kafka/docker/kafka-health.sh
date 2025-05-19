@@ -67,60 +67,6 @@ assign_topic_to_node() {
   fi
 }
 
-need_to_start_health_check_server() {
-  local is_process_present=$(ps aux | grep "/kafka-assistant -c health" | grep ${TOPIC_NAME})
-  if [[ -z "${is_process_present}" ]]; then
-    return 0
-  fi
-  return 1
-}
-
-start_health_check_server() {
-  create_topic
-  assign_topic_to_node
-  if [[ "$DISABLE_SECURITY" == "false" ]]; then
-    nohup /kafka-assistant -c health -b localhost:9093 -t ${TOPIC_NAME} \
-      -u ${CLIENT_USERNAME} -p ${CLIENT_PASSWORD} \
-      -ct ${READINESS_PERIOD} \
-      -timeout ${READINESS_PERIOD_MILLI} &> output_health_check.log &
-  else
-    nohup /kafka-assistant -c health -b localhost:9093 -t ${TOPIC_NAME} \
-      -ct ${READINESS_PERIOD} \
-      -timeout ${READINESS_PERIOD_MILLI} &> output_health_check.log &
-  fi
-  while true; do
-    curl -X GET "http://localhost:8081/" 2>server_errors.log
-    cat server_errors.log | grep -o "Failed to connect to localhost port 8081"
-    if [[ $? -eq 0 ]]; then
-      sleep 1s
-    else
-      echo "" > server_errors.log
-      break
-    fi
-  done
-}
-
-# Health check via producing and consuming by Go Kafka client.
-# Server with producer and consumer starts and serve requests to produce and consume.
-go_ready_check() {
-  READINESS_PERIOD_MILLI=$(( ${READINESS_PERIOD} * 1000 / 2 ))
-  TOPIC_NAME="kafka-health-broker-$BROKER_ID"
-  if need_to_start_health_check_server; then
-    start_health_check_server
-  fi
-  local timestamp=$(date +%s%N)
-  local url="http://localhost:8081/healthcheck?message=$timestamp"
-  local response=$(curl -s -X GET -H "Accept:application/json" -H "Content-Type:application/json" "$url")
-  local status=$(echo "$response" | jq -r ".status")
-  if [[ "$status" == "OK" ]]; then
-    echo "Success"
-    return 0
-  else
-    echo "Failure, response: [$response]"
-    return 1
-  fi
-}
-
 # Health check via kcat cluster metadata request
 kcat_ready_check() {
   if [[ -z "$HEALTH_CHECK_TIMEOUT" ]]; then
@@ -143,11 +89,7 @@ kcat_ready_check() {
 }
 
 ready_check() {
-  if [[ "$HEALTH_CHECK_TYPE" == "consumer_producer" ]]; then
-    go_ready_check
-  else
-    kcat_ready_check
-  fi
+  kcat_ready_check
 }
 
 # Check that port is open
