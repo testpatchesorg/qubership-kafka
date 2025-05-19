@@ -3,6 +3,13 @@ on:
   push:
     branches:
       - '**'
+  workflow_dispatch:
+    inputs:
+      publish_docker:
+        description: "Publish image to ghcr.io"
+        type: boolean
+        default: true
+        required: false
 
 jobs:
   multiplatform_build:
