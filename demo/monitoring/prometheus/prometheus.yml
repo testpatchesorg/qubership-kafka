@@ -1,0 +1,19 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+scrape_configs:
+  - job_name: 'metrics'
+    scrape_interval: 15s
+    honor_labels: true
+    metrics_path: /metrics
+    static_configs:
+      - targets: [
+          'kafka-1:8080',
+          'kafka-2:8080',
+          'kafka-3:8080',
+          'kafka-monitoring:8096',
+        ]
+        labels:
+          namespace: 'kafka-service'

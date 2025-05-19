@@ -1,0 +1,37 @@
+== Kafka Monitoring
+Kafka monitoring consists of the following:
+
+- InfluxDB to store all metrics.
+- Telegraf to collect metrics.
+- Grafana to represent them in an easy-to-assess way.
+
+== Monitoring Kafka Metrics
+To monitor kafka metrics, do the following:
+
+- Set up InfluxDB database.
+- Set up Telegraf agent with InfluxDB output plugin and kafka exec input plugin. 
+- Set up Grafana and configure datasource (Influxdb).
+- Import json template for Grafana Dashboard.
+
+For more information on Telegraf, Grafana and Influxdb, refer to https://github.com/influxdata/telegraf[Telegraf], https://github.com/grafana/grafana[Grafana] and https://github.com/influxdata/influxdb[Influxdb] documentation.
+
+
+== Metrics to Monitor
+Kafka metrics can be divided on cluster and broker level.
+
+The _Cluster level metrics_ are explained as follows.
+
+The _Current cluster size_ metric provides the current cluster size.
+
+The _Broker list_ metric provides the current broker id list.
+
+The _Current controller broker_ metric provides the first node to boot in a Kafka cluster, which automatically becomes the controller. There can be only one controller. The controller in a Kafka cluster is responsible for maintaining the list of partition leaders, and coordinating leadership transitions in the event a partition leader becomes unavailable. If it becomes necessary to replace the controller, a new controller is randomly chosen by ZooKeeper from the pool of brokers. In general, it is not possible for this value to be greater than one, but you should issue an alert on a value of zero.
+
+The _Offline partition count_ metric reports the number of partitions without an active leader. Because all read and write operations are only performed on partition leaders, a non-zero value for this metric should be alerted on to prevent service interruptions. Any partition without an active leader will be completely inaccessible, and both consumers and producers of that partition will be blocked until a leader becomes available.
+
+The _Broker level_ metrics are explained as follows.
+
+The _System RAM and CPU usage_ metric is useful to monitor to avoid memory limit and cpu overload on brokers.
+
+The _IsrShrinksPerSec/IsrExpandsPerSec_ metric specifies the number of in-sync replicas (ISRs) for a particular partition. It should remain fairly static. The only exceptions are when you are expanding your broker cluster or removing partitions.
+

@@ -28,6 +28,21 @@ jobs:
           - name: qubership-kafka-transfer
             file: docker-transfer/Dockerfile
             context: ""
+          - name: qubership-kafka-backup-daemon
+            file: backup-daemon/docker/Dockerfile
+            context: backup-daemon
+          - name: qubership-kafka-monitoring
+            file: monitoring/docker/Dockerfile
+            context: monitoring
+          - name: qubership-docker-kafka
+            file: docker-kafka/docker/Dockerfile
+            context: docker-kafka
+          - name: qubership-docker-akhq
+            file: docker-akhq/docker/Dockerfile
+            context: docker-akhq
+          - name: qubership-docker-kafka-lag-exporter
+            file: docker-kafka-lag-exporter/docker/Dockerfile
+            context: docker-kafka-lag-exporter
     if: github.event.ref_type == 'branch'
     runs-on: ubuntu-latest
     steps:
