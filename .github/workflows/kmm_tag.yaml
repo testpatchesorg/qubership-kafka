@@ -1,4 +1,4 @@
-name: Push tag
+name: Push KMM tag
 on:
   push:
     branches:
@@ -17,6 +17,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Set up JDK for Maven Build
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+      - name: Build Maven Project
+        run: |
+          cd kafka-mirror-maker/kafka-mm2-extension
+          mvn clean package
+      - name: Archive build output
+        run: |
+          mv kafka-mirror-maker/kafka-mm2-extension/target/kafka-mm2-extension-*.jar kafka-mirror-maker/docker/kafka-mm2-extension-*.jar
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx

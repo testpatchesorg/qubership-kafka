@@ -44,7 +44,7 @@ jobs:
           mvn clean package
       - name: Archive build output
         run: |
-          mv kafka-mirror-maker/kafka-mm2-extension/target/kafka-mm2-extension-*.jar docker/kafka-mm2-extension-*.jar
+          mv kafka-mirror-maker/kafka-mm2-extension/target/kafka-mm2-extension-*.jar kafka-mirror-maker/docker/kafka-mm2-extension-*.jar
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -67,8 +67,6 @@ jobs:
           component-tag: ${{ env.TAG_NAME }}
           access-token: ${{ secrets.GITHUB_TOKEN }}
         if: ${{ env.PUSH }}
-      - name: List files in `kafka-mm2-extension/target`
-        run: ls -l kafka-mm2-extension/target
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
