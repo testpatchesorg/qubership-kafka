@@ -1,0 +1,33 @@
+lowercaseOutputName: false
+lowercaseOutputLabelNames: false
+
+rules:
+  # Special cases and very specific rules
+  - pattern: kafka.connect.mirror<type=MirrorSourceConnector, target=(.+), topic=(.+), partition=(\d+)><>(byte-rate|byte-count)
+    name: bytes_$4
+    labels:
+      target: "$1"
+      topic: "$2"
+      partition: "$3"
+
+  - pattern: kafka.connect.mirror<type=MirrorSourceConnector, target=(.+), topic=(.+), partition=(\d+)><>(record-age-ms|record-age-ms-avg|record-age-ms-max|record-age-ms-min|record-count|record-rate)
+    name: record_age_$4
+    labels:
+      target: "$1"
+      topic: "$2"
+      partition: "$3"
+
+  - pattern: kafka.connect.mirror<type=MirrorSourceConnector, target=(.+), topic=(.+), partition=(\d+)><>(replication-latency-ms|replication-latency-ms-avg|replication-latency-ms-max|replication-latency-ms-min)
+    name: replication_latency_$4
+    labels:
+      target: "$1"
+      topic: "$2"
+      partition: "$3"
+
+  # JVM metrics
+  - pattern: java.lang<type=Memory><(\w+)MemoryUsage>(\w+)
+    name: java_Memory_$1MemoryUsage_$2
+    type: GAUGE
+  - pattern: java.lang<type=Threading><>(TotalStartedThreadCount|ThreadCount|DaemonThreadCount|PeakThreadCount)
+    name: java_Threading_$1
+    type: GAUGE

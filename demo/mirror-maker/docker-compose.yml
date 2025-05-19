@@ -1,0 +1,112 @@
+version: '2'
+services:
+  left-zookeeper:
+    image: zookeeper:3.9.2
+    ports:
+      - 12181:2181
+  left-kafka:
+    image: kafka:3.8.1
+    ports:
+      - 19092:9094
+    links:
+      - left-zookeeper
+    environment:
+      - ZOOKEEPER_CONNECT=left-zookeeper:2181
+      - DISABLE_SECURITY=false
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin
+      - CLIENT_USERNAME=user1
+      - CLIENT_PASSWORD=userone
+      - EXTERNAL_HOST_NAME=localhost
+      - EXTERNAL_PORT=19092
+  left-akhq:
+    image: akhq:latest
+    ports:
+      - 18080:8080
+    links:
+      - left-kafka
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            kafka:
+              properties:
+                bootstrap.servers: "left-kafka:9092"
+                security.protocol: SASL_PLAINTEXT
+                sasl.mechanism: SCRAM-SHA-512
+                sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="user1" password="userone";
+  right-zookeeper:
+    image: zookeeper:3.9.2
+    ports:
+      - 22181:2181
+  right-kafka:
+    image: kafka:3.8.1
+    ports:
+      - 29092:9094
+    links:
+      - right-zookeeper
+    environment:
+      - ZOOKEEPER_CONNECT=right-zookeeper:2181
+      - DISABLE_SECURITY=false
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin
+      - CLIENT_USERNAME=user2
+      - CLIENT_PASSWORD=usertwo
+      - EXTERNAL_HOST_NAME=localhost
+      - EXTERNAL_PORT=29092
+  right-akhq:
+    image: akhq:latest
+    ports:
+      - 28080:8080
+    links:
+      - right-kafka
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            kafka:
+              properties:
+                bootstrap.servers: "right-kafka:9092"
+                security.protocol: SASL_PLAINTEXT
+                sasl.mechanism: SCRAM-SHA-512
+                sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="user2" password="usertwo";
+  first-kafka-mirror-maker:
+    image: kafka-mm:latest
+    ports:
+      - 11505:1505
+    volumes:
+      - ./config/kmm.conf:/opt/kafka/config/kmm/kmm.conf
+    links:
+      - left-kafka
+      - right-kafka
+    environment:
+      - CLUSTER=first
+      - CLUSTERS=first, second
+      - FIRST_KAFKA_USERNAME=user1
+      - FIRST_KAFKA_PASSWORD=userone
+      - SECOND_KAFKA_USERNAME=user2
+      - SECOND_KAFKA_PASSWORD=usertwo
+      - JOLOKIA_PORT=9087
+      - JOLOKIA_USERNAME=client
+      - JOLOKIA_PASSWORD=client
+      - KAFKA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:1505
+  second-kafka-mirror-maker:
+    image: kafka-mm:latest
+    ports:
+      - 21505:1505
+    volumes:
+      - ./config/kmm.conf:/opt/kafka/config/kmm/kmm.conf
+    links:
+      - left-kafka
+      - right-kafka
+    environment:
+      - CLUSTER=second
+      - CLUSTERS=first, second
+      - FIRST_KAFKA_USERNAME=user1
+      - FIRST_KAFKA_PASSWORD=userone
+      - SECOND_KAFKA_USERNAME=user2
+      - SECOND_KAFKA_PASSWORD=usertwo
+      - JOLOKIA_PORT=9087
+      - JOLOKIA_USERNAME=client
+      - JOLOKIA_PASSWORD=client
+      - KAFKA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:1505
