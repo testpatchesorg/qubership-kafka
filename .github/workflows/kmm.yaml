@@ -1,4 +1,4 @@
-name: Build Artifacts
+name: Build KMM
 on:
   release:
     types: [created]
@@ -40,11 +40,11 @@ jobs:
           distribution: 'temurin'
       - name: Build Maven Project
         run: |
-          cd kafka-mm2-extension
+          cd kafka-mirror-maker/kafka-mm2-extension
           mvn clean package
       - name: Archive build output
         run: |
-          mv kafka-mm2-extension/target/kafka-mm2-extension-*.jar docker/kafka-mm2-extension-*.jar
+          mv kafka-mirror-maker/kafka-mm2-extension/target/kafka-mm2-extension-*.jar docker/kafka-mm2-extension-*.jar
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
