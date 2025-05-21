@@ -1,0 +1,117 @@
+version: '2'
+services:
+  zookeeper:
+    image: zookeeper:3.8.3
+    ports:
+      - 2181:2181
+  kafka-1:
+    image: kafka:3.5.1
+    ports:
+      - 19094:9094
+      - 19087:9087
+      - 18080:8080
+    links:
+      - zookeeper
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+      - EXTERNAL_HOST_NAME=172.17.0.1
+      - EXTERNAL_PORT=19094
+      - BROKER_ID=1
+      - BROKER_HOST_NAME=kafka-1
+    volumes:
+      - ./kafka/jmx-exporter-config.yml:/opt/kafka/config/jmx-exporter-config.yml
+  kafka-2:
+    image: kafka:3.5.1
+    ports:
+      - 29094:9094
+      - 29087:9087
+      - 28080:8080
+    links:
+      - zookeeper
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+      - EXTERNAL_HOST_NAME=172.17.0.1
+      - EXTERNAL_PORT=29094
+      - BROKER_ID=2
+      - BROKER_HOST_NAME=kafka-2
+    volumes:
+      - ./kafka/jmx-exporter-config.yml:/opt/kafka/config/jmx-exporter-config.yml
+  kafka-3:
+    image: kafka:3.5.1
+    ports:
+      - 39094:9094
+      - 39087:9087
+      - 38080:8080
+    links:
+      - zookeeper
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+      - EXTERNAL_HOST_NAME=172.17.0.1
+      - EXTERNAL_PORT=39094
+      - BROKER_ID=3
+      - BROKER_HOST_NAME=kafka-3
+    volumes:
+      - ./kafka/jmx-exporter-config.yml:/opt/kafka/config/jmx-exporter-config.yml
+  kafka-monitoring:
+    image: ghcr.io/netcracker/qubership-kafka-monitoring:main
+    hostname: kafka-monitoring
+    ports:
+      - 8096:8096
+    links:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+      - influxdb
+    environment:
+      - OS_PROJECT=kafka-service
+      - SM_DB_HOST=http://influxdb:8086
+      - SM_DB_NAME=monitoring
+      - SM_DB_USERNAME=influx
+      - SM_DB_PASSWORD=influx
+      - KAFKA_MONITORING_INTERVAL=10s
+      - KAFKA_EXEC_PLUGIN_TIMEOUT=10s
+      - KAFKA_SERVICE_NAME=kafka
+      - KAFKA_TOTAL_BROKERS_COUNT=3
+      - KAFKA_ADDRESSES=172.17.0.1:19094,172.17.0.1:29094,172.17.0.1:39094
+      - PROMETHEUS_ADDRESSES=172.17.0.1:18080,172.17.0.1:28080,172.17.0.1:38080
+    volumes:
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
+  influxdb:
+    image: influxdb:1.8.9
+    ports:
+      - 8086:8086
+    environment:
+      - INFLUXDB_ADMIN_USER=influx
+      - INFLUXDB_ADMIN_PASSWORD=influx
+      - INFLUXDB_HTTP_ENABLED=true
+      - INFLUXDB_HTTP_AUTH_ENABLED=false
+      - INFLUXDB_DB=monitoring
+#  prometheus:
+#    image: prom/prometheus:latest
+#    ports:
+#      - 9090:9090
+#    links:
+#      - kafka-1
+#      - kafka-2
+#      - kafka-3
+#      - kafka-monitoring
+#    command:
+#      - '--web.console.templates=/etc/prometheus/consoles'
+#      - '--web.console.libraries=/etc/prometheus/console_libraries'
+#      - '--config.file=/etc/prometheus/prometheus.yml'
+#      - '--storage.tsdb.path=/prometheus'
+#      - '--storage.tsdb.retention.time=24h'
+#      - '--web.enable-lifecycle'
+#      - '--storage.tsdb.no-lockfile'
+#      - '--web.route-prefix=/'
+#    volumes:
+#      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  grafana:
+    image: grafana/grafana:7.3.6
+    ports:
+      - 3000:3000
+    user: "0"
+    environment:
+      - GF_INSTALL_PLUGINS=agenty-flowcharting-panel,flant-statusmap-panel,natel-discrete-panel
+    volumes:
+      - ./grafana/:/etc/grafana/provisioning/

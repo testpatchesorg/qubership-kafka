@@ -871,7 +871,7 @@ Configure replicas number for backup-daemon pod
     {{- printf "deployment %s-%s-mirror-maker kafka-mirror-maker %s, " (.Values.mirrorMaker.regionName) (include "kafka.name" .) (include "find_image" (list . "docker-kafka-mirror-maker")) -}}
   {{- end -}}
   {{- if .Values.mirrorMakerMonitoring.install }}
-    {{- printf "deployment %s-mirror-maker-monitoring kafka-mirror-maker-monitoring %s, " (include "kafka.name" .) (include "find_image" (list . "prod.platform.streaming_kafka-mirror-maker-monitoring")) -}}
+    {{- printf "deployment %s-kafka-mirror-maker-monitoring kafka-kafka-mirror-maker-monitoring %s, " (include "kafka.name" .) (include "find_image" (list . "prod.platform.streaming_kafka-kafka-mirror-maker-monitoring")) -}}
   {{- end -}}
   {{- if .Values.akhq.install }}
     {{- printf "deployment akhq akhq %s, " (include "find_image" (list . "docker-akhq")) -}}
