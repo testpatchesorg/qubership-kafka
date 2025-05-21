@@ -27,7 +27,7 @@ func (rj KafkaUserJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string,
 	if mainApiGroup() != apiGroup {
 		runScheme, err = duplicateScheme(apiGroup)
 		if err != nil {
-			logger.Error(err, "duplicate scheme error", "group", opts.ApiGroup)
+			logger.Error(err, "duplicate scheme error", "group", apiGroup)
 			return nil, err
 		}
 		port += 10
