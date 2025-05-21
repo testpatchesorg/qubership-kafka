@@ -1,0 +1,72 @@
+= Security Hardening Guide
+
+The document describes security hardening recommendations for Apache Kafka.
+
+== General Consideration
+
+There are a number of different ways to secure a Kafka cluster depending on project requirements and deployment schema. The following factors should be taken into consideration:
+
+* Network Configuration (external\internal access, isolated VLANs, private cloud, etc.)
+* Data classification in messages (public, internal, confidential, strictly confidential)
+* Clients (producers, consumers) location
+
+===  Access restriction
+
+Kafka cluster should be secured against **unauthorized access**.
+
+Authentication of connections to brokers from clients (producers and consumers), other brokers and tools, should be enabled. Kafka supports the following authentication mechanisms:
+
+*   SASL/GSSAPI (Kerberos) - starting at version 0.9.0.0
+*   SASL/PLAIN - starting at version 0.10.0.0
+*   SASL/SCRAM-SHA-256 and SASL/SCRAM-SHA-512 - starting at version 0.10.2.0
+
+More details in official documentation https://kafka.apache.org/documentation/#security_sasl
+
+==== Default Users
+
+Check that no default general and\or super users are delivered to production
+----
+super.users=User:admin;User:admin
+----
+
+=== Authorization
+
+The authorization for Kafka clients should follow least priviledge principle.
+
+Kafka ships with an out-of-box authorizer implementation.
+By default access will be denied if no authorization rule is found.
+Check that behavior via property:
+----
+allow.everyone.if.no.acl.found=false
+----
+
+More details in official documentation https://kafka.apache.org/documentation/#security_authz 
+
+=== Data protection
+
+Appropriate security measures for data transmission and storage must be implemented in case data are classified as internal, confidential or strictly confidential.
+
+To protect data-in-transit TLS (v.1.2 or higher) connection must be used. Configuration details for Kafka broker and clients can be found in official documentation https://kafka.apache.org/documentation/#security_ssl
+
+To protect data-at-rest appropriate security configurations should be applied for the storage where Kafka saves its data.
+
+
+=== Logging
+
+In case authorization is used, it produces a separate log to kafka-authorizer.log. Defaul configuration contains only WARN and ERROR messages.
+----
+log4j.logger.kafka.authorizer.logger=WARN, authorizerAppender
+log4j.additivity.kafka.authorizer.logger=false
+----
+To get full audit log DEBUG level should be used. 
+
+Log settings can be changed in config/log4j.properties file.
+
+=== Secure integration with Zookeeper
+
+As  inappropriate manipulation of Kafka configuration data can cause cluster disruption, it's recommended to use zookeeper authentication on Kafka brokers. To enable ZooKeeper authentication perform the following steps:
+
+1.  Create a JAAS login file and set the appropriate system property to point to it as described above
+2.  Set the configuration property _zookeeper.set.acl_ in each broker to true
+__
+More details in official documentation https://kafka.apache.org/documentation/#zk_authz

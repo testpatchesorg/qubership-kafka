@@ -1,0 +1,86 @@
+version: '2'
+services:
+  zookeeper:
+    image: ghcr.io/netcracker/qubership-docker-zookeeper:main
+    ports:
+      - 2181:2181
+#    volumes:
+#      - ./zk-data:/var/opt/zookeeper/data
+  kafka-1:
+    image: ghcr.io/netcracker/qubership-docker-kafka:main
+    ports:
+      - 9094:9094
+    links:
+      - zookeeper
+#    volumes:
+#      - ./kafka-data1:/var/opt/kafka/data
+    environment:
+      - BROKER_ID=1
+      - REPLICATION_FACTOR=3
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+      - DISABLE_SECURITY=false
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin
+      - CLIENT_USERNAME=user1
+      - CLIENT_PASSWORD=userone
+      - READINESS_PERIOD=30
+      - EXTERNAL_HOST_NAME=localhost
+      - EXTERNAL_PORT=9094
+  kafka-2:
+    image: ghcr.io/netcracker/qubership-docker-kafka:main
+    ports:
+      - 9095:9094
+    links:
+      - zookeeper
+#    volumes:
+#      - ./kafka-data1:/var/opt/kafka/data
+    environment:
+      - BROKER_ID=2
+      - REPLICATION_FACTOR=3
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+      - DISABLE_SECURITY=false
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin
+      - CLIENT_USERNAME=user1
+      - CLIENT_PASSWORD=userone
+      - READINESS_PERIOD=30
+      - EXTERNAL_HOST_NAME=localhost
+      - EXTERNAL_PORT=9095
+  kafka-3:
+    image: ghcr.io/netcracker/qubership-docker-kafka:main
+    ports:
+      - 9096:9094
+    links:
+      - zookeeper
+#    volumes:
+#      - ./kafka-data1:/var/opt/kafka/data
+    environment:
+      - BROKER_ID=3
+      - REPLICATION_FACTOR=3
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+      - DISABLE_SECURITY=false
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin
+      - CLIENT_USERNAME=user1
+      - CLIENT_PASSWORD=userone
+      - READINESS_PERIOD=30
+      - EXTERNAL_HOST_NAME=localhost
+      - EXTERNAL_PORT=9096
+  akhq:
+    image: ghcr.io/netcracker/qubership-docker-akhq:main
+    ports:
+      - 8080:8080
+    links:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            kafka:
+              properties:
+                bootstrap.servers: "kafka-1:9092,kafka-2:9092,kafka-3:9092"
+                security.protocol: SASL_PLAINTEXT
+                sasl.mechanism: SCRAM-SHA-512
+                sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="user1" password="userone";

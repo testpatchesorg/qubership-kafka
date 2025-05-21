@@ -1,0 +1,40 @@
+version: '2'
+services:
+  zookeeper:
+    image: ghcr.io/netcracker/qubership-docker-zookeeper:main
+    ports:
+      - 2181:2181
+  kafka:
+    image: ghcr.io/netcracker/qubership-docker-kafka:main
+    ports:
+      - 9094:9094
+    links:
+      - zookeeper
+    depends_on:
+      - zookeeper
+    environment:
+      - BROKER_ID=1
+      - REPLICATION_FACTOR=3
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+      - DISABLE_SECURITY=true
+      - READINESS_PERIOD=30
+      - EXTERNAL_HOST_NAME=localhost
+      # - EXTERNAL_HOST_NAME=ws-00000.netcracker.com
+      - EXTERNAL_PORT=9094
+      - CONF_KAFKA_MIN_INSYNC_REPLICAS=1
+  akhq:
+    image: ghcr.io/netcracker/qubership-docker-akhq:main
+    ports:
+      - 8080:8080
+    links:
+      - kafka
+    depends_on:
+      - kafka
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            kafka:
+              properties:
+                bootstrap.servers: "kafka:9092"
+                security.protocol: PLAINTEXT
