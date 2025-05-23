@@ -137,7 +137,7 @@ spec:
               value: "{{ (include "disasterRecovery.cipherSuites" .) | trimSuffix "," }}"
             {{- end }}
             - name: RESOURCE_FOR_DR
-              value: "qubership.org v7 kafkaservices {{ template "kafka.name" . }}"
+              value: "{{ .Values.operator.apiGroup }} v7 kafkaservices {{ template "kafka.name" . }}"
             - name: USE_DEFAULT_PATHS
               value: "true"
             - name: HEALTH_MAIN_SERVICES_ACTIVE
