@@ -19,7 +19,6 @@ services:
       - DISABLE_SECURITY=true
       - READINESS_PERIOD=30
       - EXTERNAL_HOST_NAME=localhost
-      # - EXTERNAL_HOST_NAME=ws-00000.netcracker.com
       - EXTERNAL_PORT=9094
       - CONF_KAFKA_MIN_INSYNC_REPLICAS=1
   akhq:
