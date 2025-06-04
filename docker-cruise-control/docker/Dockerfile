@@ -1,6 +1,6 @@
 FROM eclipse-temurin:21-jdk-alpine AS builder
 
-ENV CC_VERSION=2.5.141
+ENV CC_VERSION=3.0.3
 
 RUN set -x \
     && apk add --update --no-cache \
