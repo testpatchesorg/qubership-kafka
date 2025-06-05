@@ -7,7 +7,10 @@ metadata:
     {{- include "kafka-services.defaultLabels" . | nindent 4 }}
 rules:
   - apiGroups:
-      - ""
+      - {{ .Values.operator.apiGroup }}
+      {{- if .Values.operator.secondaryApiGroup}}
+      - {{ .Values.operator.secondaryApiGroup }}
+      {{- end }}
     resources:
       - nodes
     verbs:
