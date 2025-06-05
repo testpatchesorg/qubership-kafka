@@ -40,18 +40,18 @@ import (
 )
 
 const (
-	successState          = "success"
-	failureState          = "failure"
-	processingState       = "processing"
-	disabledState         = "disabled"
-	kafkaUserFinalizer    = "qubership.org/kafka-user-controller"
-	specName              = "spec"
-	labelsName            = "labels"
-	annotationsName       = "annotations"
-	bootstrapServersLabel = "kafka.qubership.org/bootstrap.servers"
-	authorizationDisabled = "Security features are disabled"
-	kafkaScheme           = "kafka"
-	saslPlaintextProtocol = "sasl_plaintext"
+	successState           = "success"
+	failureState           = "failure"
+	processingState        = "processing"
+	disabledState          = "disabled"
+	kafkaUserFinalizerName = "kafka-user-controller"
+	specName               = "spec"
+	labelsName             = "labels"
+	annotationsName        = "annotations"
+	bootstrapServersLabel  = "kafka.qubership.org/bootstrap.servers"
+	authorizationDisabled  = "Security features are disabled"
+	kafkaScheme            = "kafka"
+	saslPlaintextProtocol  = "sasl_plaintext"
 )
 
 // KafkaUserReconciler reconciles a KafkaUser object
@@ -78,7 +78,7 @@ func (r *KafkaUserReconciler) Reconcile(ctx context.Context, request ctrl.Reques
 	logger := logf.Log.WithName("controller_kafka_user").
 		WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	logger.Info("Reconciling KafkaUser")
-
+	kafkaUserFinalizer := fmt.Sprintf("%s/%s", r.ApiGroup, kafkaUserFinalizerName)
 	instance := &kafka.KafkaUser{}
 	err := r.Client.Get(context.TODO(), request.NamespacedName, instance)
 	if err != nil {

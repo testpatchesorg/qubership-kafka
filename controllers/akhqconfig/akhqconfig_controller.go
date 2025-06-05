@@ -40,7 +40,7 @@ import (
 var log = logf.Log.WithName("controller_akhq_config")
 
 const (
-	akhqFinalizer               = "qubership.org/akhq-config-controller"
+	akhqFinalizerName           = "akhq-config-controller"
 	internalServerError         = "internal server error, config was not applied"
 	protobufConfigurationCMName = "akhq-protobuf-configuration"
 	decodingValidationError     = "can not decode descriptor-file-base64 config which is associated with [%s] regular expression"
@@ -79,7 +79,7 @@ type AkhqConfigReconciler struct {
 func (r *AkhqConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	reqLogger := log.WithValues("Request.Namespace", req.Namespace, "Request.Name", req.Name)
 	reqLogger.Info("Reconciling AkhqConfig")
-
+	akhqFinalizer := fmt.Sprintf("%s/%s", r.ApiGroup, akhqFinalizerName)
 	instance := &akhqconfigv1.AkhqConfig{}
 	err := r.Client.Get(context.TODO(), req.NamespacedName, instance)
 	if err != nil {
