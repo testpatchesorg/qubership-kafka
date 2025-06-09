@@ -17,7 +17,7 @@ type AkhqJob struct {
 
 func (rj AkhqJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string, logger logr.Logger) (Exec, error) {
 	var err error
-	if opts.Mode == cfg.KafkaMode && len(opts.WatchAkhqCollectNamespace) == 0 {
+	if opts.Mode == cfg.KafkaMode || len(opts.WatchAkhqCollectNamespace) == 0 {
 		return nil, nil
 	}
 

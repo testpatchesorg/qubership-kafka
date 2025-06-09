@@ -18,7 +18,7 @@ type KmmJob struct {
 func (rj KmmJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string, logger logr.Logger) (Exec, error) {
 	var err error
 
-	if opts.Mode == cfg.KafkaMode && !opts.KmmEnabled {
+	if opts.Mode == cfg.KafkaMode || !opts.KmmEnabled {
 		return nil, nil
 	}
 
