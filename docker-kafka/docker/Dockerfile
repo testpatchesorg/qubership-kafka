@@ -1,4 +1,4 @@
-FROM amazoncorretto:11-alpine3.21-jdk
+FROM eclipse-temurin:11-jdk-alpine
 
 ENV KAFKA_HOME=/opt/kafka \
     KAFKA_DATA_DIRS=/var/opt/kafka/data \
