@@ -94,3 +94,8 @@ To keep the component up to date, the following activities should be performed r
 * [Troubleshooting guide](/docs/public/troubleshooting.md).
 * [Architecture Guide](/docs/public/architecture.md).
 * [Internal Developer Guide](/docs/internal/developing.md).
+
+## License
+
+* Main part is distributed under `Apache License, Version 2.0`.
+* Folder `docker-kafka` is distributed under `The GNU General Public License, Version 2`.
