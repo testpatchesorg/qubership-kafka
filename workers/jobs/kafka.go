@@ -40,7 +40,7 @@ func (rj KafkaJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string, log
 		HealthProbeBindAddress:  probeAddr,
 		LeaderElection:          opts.EnableLeaderElection,
 		LeaderElectionNamespace: opts.OperatorNamespace,
-		LeaderElectionID:        fmt.Sprintf("%s.%s.%s", string(opts.Mode), opts.OwnNamespace, apiGroup),
+		LeaderElectionID:        fmt.Sprintf("%s.%s.%s", string(opts.Mode), opts.OperatorNamespace, apiGroup),
 	}
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), kafkaOpts)
