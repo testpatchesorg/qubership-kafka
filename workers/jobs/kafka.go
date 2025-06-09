@@ -34,12 +34,12 @@ func (rj KafkaJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string, log
 
 	kafkaOpts := ctrl.Options{
 		Scheme:                  runScheme,
-		Namespace:               opts.OwnNamespace,
+		Namespace:               opts.OperatorNamespace,
 		MetricsBindAddress:      metricsAddr,
 		Port:                    port,
 		HealthProbeBindAddress:  probeAddr,
 		LeaderElection:          opts.EnableLeaderElection,
-		LeaderElectionNamespace: opts.OwnNamespace,
+		LeaderElectionNamespace: opts.OperatorNamespace,
 		LeaderElectionID:        fmt.Sprintf("%s.%s.%s", string(opts.Mode), opts.OwnNamespace, apiGroup),
 	}
 
