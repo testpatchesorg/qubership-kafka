@@ -1,4 +1,4 @@
-FROM eclipse-temurin:11-jdk-alpine
+FROM bellsoft/liberica-openjdk-alpine:11
 
 ENV KAFKA_HOME=/opt/kafka \
     KAFKA_DATA_DIRS=/var/opt/kafka/data \
