@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ template "kafka.name" . }}-service-operator
+  name: {{ template "kafka.name" . }}-service-operator-{{ .Release.Namespace }}
   labels:
     {{- include "kafka-services.defaultLabels" . | nindent 4 }}
 rules:
