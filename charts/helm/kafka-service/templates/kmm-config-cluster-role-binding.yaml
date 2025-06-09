@@ -1,4 +1,4 @@
-{{- if and (not .Values.operator.serviceAccount) .Values.operator.kmmConfiguratorEnabled .Values.mirrorMaker.install  (not .Values.global.restrictedEnvironment) }}
+{{- if and (empty .Values.operator.serviceAccount) .Values.operator.kmmConfiguratorEnabled .Values.mirrorMaker.install  (not .Values.global.restrictedEnvironment) }}
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
