@@ -38,11 +38,11 @@ func (rj AkhqJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string, logg
 		Port:                    port,
 		HealthProbeBindAddress:  "0",
 		LeaderElection:          opts.EnableLeaderElection,
-		LeaderElectionNamespace: opts.OwnNamespace,
-		LeaderElectionID:        fmt.Sprintf("akhqconfig.%s.%s", opts.OwnNamespace, opts.ApiGroup),
+		LeaderElectionNamespace: opts.OperatorNamespace,
+		LeaderElectionID:        fmt.Sprintf("akhqconfig.%s.%s", opts.OperatorNamespace, opts.ApiGroup),
 	}
 
-	configureManagerNamespaces(&akhqOpts, opts.WatchAkhqCollectNamespace, opts.OwnNamespace)
+	configureManagerNamespaces(&akhqOpts, opts.WatchAkhqCollectNamespace, opts.OperatorNamespace)
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), akhqOpts)
 	if err != nil {
 		logger.Error(err, fmt.Sprintf("unable to start %s manager", AkhqJobName))
@@ -52,7 +52,7 @@ func (rj AkhqJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string, logg
 	err = (&akhqconfig.AkhqConfigReconciler{
 		Client:    mgr.GetClient(),
 		Scheme:    mgr.GetScheme(),
-		Namespace: opts.OwnNamespace,
+		Namespace: opts.OperatorNamespace,
 		ApiGroup:  apiGroup,
 	}).SetupWithManager(mgr)
 

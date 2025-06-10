@@ -45,10 +45,10 @@ func (rj KmmJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string, logge
 		Port:                    port,
 		HealthProbeBindAddress:  "0",
 		LeaderElection:          opts.EnableLeaderElection,
-		LeaderElectionNamespace: opts.OwnNamespace,
-		LeaderElectionID:        fmt.Sprintf("kmmconfig.%s.%s", opts.OwnNamespace, apiGroup),
+		LeaderElectionNamespace: opts.OperatorNamespace,
+		LeaderElectionID:        fmt.Sprintf("kmmconfig.%s.%s", opts.OperatorNamespace, apiGroup),
 	}
-	configureManagerNamespaces(&kmmMgrOpts, namespace, opts.OwnNamespace)
+	configureManagerNamespaces(&kmmMgrOpts, namespace, opts.OperatorNamespace)
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), kmmMgrOpts)
 	if err != nil {

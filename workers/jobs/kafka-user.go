@@ -39,10 +39,10 @@ func (rj KafkaUserJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string,
 		Port:                    port,
 		HealthProbeBindAddress:  "0",
 		LeaderElection:          opts.EnableLeaderElection,
-		LeaderElectionNamespace: opts.OwnNamespace,
-		LeaderElectionID:        fmt.Sprintf("kafkausers.%s.%s", opts.OwnNamespace, apiGroup),
+		LeaderElectionNamespace: opts.OperatorNamespace,
+		LeaderElectionID:        fmt.Sprintf("kafkausers.%s.%s", opts.OperatorNamespace, apiGroup),
 	}
-	configureManagerNamespaces(&kafkaUsersMgrOptions, namespace, opts.OwnNamespace)
+	configureManagerNamespaces(&kafkaUsersMgrOptions, namespace, opts.OperatorNamespace)
 
 	kafkaUserMgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), kafkaUsersMgrOptions)
 	if err != nil {
@@ -60,7 +60,7 @@ func (rj KafkaUserJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string,
 		BootstrapServers:      opts.KafkaBootstrapServers,
 		Client:                kafkaUserMgr.GetClient(),
 		SecretCreatingEnabled: secretCreatingEnabled,
-		Namespace:             opts.OwnNamespace,
+		Namespace:             opts.OperatorNamespace,
 		ReconciliationPeriod:  reconciliationPeriod,
 		Scheme:                kafkaUserMgr.GetScheme(),
 		ResourceHashes:        map[string]string{},
