@@ -16,11 +16,11 @@ type KafkaUserJob struct {
 
 func (rj KafkaUserJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string, logger logr.Logger) (Exec, error) {
 	var err error
-	if opts.Mode == cfg.KafkaMode || len(opts.WatchKafkaUsersCollectNamespace) == 0 {
+	if opts.Mode == cfg.KafkaMode || opts.WatchKafkaUsersCollectNamespace == nil {
 		return nil, nil
 	}
 
-	namespace := opts.WatchKafkaUsersCollectNamespace
+	namespace := *opts.WatchKafkaUsersCollectNamespace
 
 	runScheme := scheme
 	port := 9544

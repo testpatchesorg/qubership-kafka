@@ -17,10 +17,10 @@ type AkhqJob struct {
 
 func (rj AkhqJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string, logger logr.Logger) (Exec, error) {
 	var err error
-	if opts.Mode == cfg.KafkaMode || len(opts.WatchAkhqCollectNamespace) == 0 {
+	if opts.Mode == cfg.KafkaMode || opts.WatchAkhqCollectNamespace == nil {
 		return nil, nil
 	}
-
+	watchNamespace := *opts.WatchAkhqCollectNamespace
 	runScheme := scheme
 	port := 9542
 	if mainApiGroup() != apiGroup {
@@ -42,7 +42,7 @@ func (rj AkhqJob) Build(ctx context.Context, opts cfg.Cfg, apiGroup string, logg
 		LeaderElectionID:        fmt.Sprintf("akhqconfig.%s.%s", opts.OperatorNamespace, opts.ApiGroup),
 	}
 
-	configureManagerNamespaces(&akhqOpts, opts.WatchAkhqCollectNamespace, opts.OperatorNamespace)
+	configureManagerNamespaces(&akhqOpts, watchNamespace, opts.OperatorNamespace)
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), akhqOpts)
 	if err != nil {
 		logger.Error(err, fmt.Sprintf("unable to start %s manager", AkhqJobName))
