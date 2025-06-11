@@ -73,12 +73,12 @@ spec:
             - name: KAFKA_AUTH_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "kafka.name" . }}-secret
+                  name: {{ template "kafka.name" . }}-services-secret
                   key: client-username
             - name: KAFKA_AUTH_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "kafka.name" . }}-secret
+                  name: {{ template "kafka.name" . }}-services-secret
                   key: client-password
             - name: ADMIN_USERNAME
               valueFrom:
