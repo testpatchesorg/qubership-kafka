@@ -702,6 +702,12 @@ cruiseControl:
 
   prometheusServerEndpoint: ""
 
+  affinity: { }
+
+  tolerations: [ ]
+
+  nodeSelector: { }
+
   resources:
     requests:
       memory: "512Mi"

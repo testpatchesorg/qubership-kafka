@@ -26,6 +26,18 @@ spec:
         name: {{ template "kafka.name" . }}-cruise-control
         component: kafka-cruise-control
     spec:
+      {{- if .Values.cruiseControl.affinity }}
+      affinity:
+        {{ tpl (.Values.cruiseControl.affinity | toYaml) . | nindent 8 | trim }}
+      {{- end }}
+      {{- if .Values.cruiseControl.tolerations }}
+      tolerations:
+        {{ .Values.cruiseControl.tolerations | toYaml | indent 8 | trim }}
+      {{- end }}
+      {{- if .Values.cruiseControl.nodeSelector }}
+      nodeSelector:
+        {{ .Values.cruiseControl.nodeSelector | toYaml | indent 8 | trim }}
+      {{- end }}
       securityContext:
         {{- include "kafka-service.globalPodSecurityContext" . | nindent 8 }}
         {{- with .Values.cruiseControl.securityContext }}
