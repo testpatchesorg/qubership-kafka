@@ -1,6 +1,113 @@
 The following topics are covered in this chapter:
 
-[[_TOC_]]
+<!-- TOC -->
+* [General Information](#general-information)
+* [Prerequisites](#prerequisites)
+  * [Common](#common)
+    * [Custom Resource Definitions](#custom-resource-definitions)
+      * [KafkaUsers CRD](#kafkausers-crd)
+    * [Deployment Permissions](#deployment-permissions)
+    * [Pre-deployment Resources](#pre-deployment-resources)
+      * [Kafka Service Operator Roles](#kafka-service-operator-roles)
+        * [Acceptance Criteria](#acceptance-criteria)
+        * [Resources](#resources)
+        * [To do](#to-do)
+      * [CRD-Init job](#crd-init-job)
+        * [Acceptance Criteria](#acceptance-criteria-1)
+        * [Resources](#resources-1)
+    * [Multiple Availability Zone](#multiple-availability-zone)
+  * [Storage](#storage)
+    * [Disk Requirements](#disk-requirements)
+    * [Permissions](#permissions)
+  * [Kubernetes](#kubernetes)
+  * [OpenShift](#openshift)
+  * [Google Cloud](#google-cloud)
+  * [AWS](#aws)
+* [Best Practices and Recommendations](#best-practices-and-recommendations)
+  * [Kafka Configurations](#kafka-configurations)
+    * [Automatic Topic Creation](#automatic-topic-creation)
+  * [HWE](#hwe)
+    * [Small](#small)
+    * [Medium](#medium)
+    * [Large](#large)
+    * [XLarge](#xlarge)
+  * [Topic Configurations](#topic-configurations)
+    * [Partitions Number](#partitions-number)
+  * [Performance Optimization](#performance-optimization)
+* [Parameters](#parameters)
+  * [Cloud Integration Parameters](#cloud-integration-parameters)
+  * [Global](#global)
+    * [External Kafka](#external-kafka)
+    * [Disaster Recovery](#disaster-recovery)
+    * [Secrets](#secrets)
+  * [Operator](#operator)
+  * [Kafka](#kafka)
+  * [Monitoring](#monitoring)
+    * [Lag Exporter](#lag-exporter)
+  * [AKHQ](#akhq)
+  * [Mirror Maker](#mirror-maker)
+  * [Mirror Maker Monitoring](#mirror-maker-monitoring)
+  * [Integration Tests](#integration-tests)
+    * [Integration test tags description](#integration-test-tags-description)
+  * [Backup Daemon](#backup-daemon)
+  * [Cruise Control](#cruise-control)
+  * [CRD-Init job](#crd-init-job-1)
+* [Installation](#installation)
+  * [Before You Begin](#before-you-begin)
+  * [On-Prem Examples](#on-prem-examples)
+    * [HA Scheme](#ha-scheme)
+    * [DR scheme](#dr-scheme)
+  * [Google Cloud Examples](#google-cloud-examples)
+    * [HA Scheme](#ha-scheme-1)
+    * [DR Scheme](#dr-scheme-1)
+  * [AWS Examples](#aws-examples)
+    * [DR Scheme](#dr-scheme-2)
+  * [Azure Examples](#azure-examples)
+    * [HA Scheme](#ha-scheme-2)
+    * [DR Scheme](#dr-scheme-3)
+  * [Aiven Kafka](#aiven-kafka)
+  * [KRaft](#kraft)
+* [Upgrade](#upgrade)
+  * [Common](#common-1)
+  * [Scale-In Cluster](#scale-in-cluster)
+  * [Rolling Upgrade](#rolling-upgrade)
+  * [Secured Kafka Mirror Maker Credentials Migration](#secured-kafka-mirror-maker-credentials-migration)
+  * [Helm](#helm)
+    * [Manual Upgrade](#manual-upgrade)
+    * [Manual Uninstalling](#manual-uninstalling)
+  * [CRD Upgrade](#crd-upgrade)
+  * [Automatic CRD Upgrade](#automatic-crd-upgrade)
+  * [Custom Resource Definition Versioning](#custom-resource-definition-versioning)
+    * [Apply New Custom Resource Definition Version](#apply-new-custom-resource-definition-version)
+    * [Custom Resource Definition with Versioning](#custom-resource-definition-with-versioning)
+    * [Custom Resource Definition without Versioning](#custom-resource-definition-without-versioning)
+  * [Migration from Joint to Separate Deployment](#migration-from-joint-to-separate-deployment)
+    * [Manual Way](#manual-way)
+  * [HA to DR Scheme](#ha-to-dr-scheme)
+* [Rollback](#rollback)
+* [Additional Features](#additional-features)
+  * [Cluster with Arbiter Node](#cluster-with-arbiter-node)
+    * [Kafka](#kafka-1)
+    * [ZooKeeper](#zookeeper)
+  * [Kafka Service Discovery](#kafka-service-discovery)
+  * [Kafka Mirror Maker Features](#kafka-mirror-maker-features)
+    * [Update Existing Configuration](#update-existing-configuration)
+    * [Redeploy with New Configuration](#redeploy-with-new-configuration)
+  * [Multi-datacenter Deployment with Cross-datacenter Replication (XDCR)](#multi-datacenter-deployment-with-cross-datacenter-replication-xdcr)
+    * [Multi-datacenter Prerequisites](#multi-datacenter-prerequisites)
+    * [Mirror Maker deployment](#mirror-maker-deployment)
+  * [Multiple Availability Zone Deployment](#multiple-availability-zone-deployment)
+    * [Affinity](#affinity)
+      * [Replicas Fewer than Availability Zones](#replicas-fewer-than-availability-zones)
+    * [Replicas More than Availability Zones](#replicas-more-than-availability-zones)
+  * [Broker Racks](#broker-racks)
+* [Frequently Asked Questions](#frequently-asked-questions)
+  * [What to do if a Kubernetes version is upgraded before application?](#what-to-do-if-a-kubernetes-version-is-upgraded-before-application)
+  * [Deploy job failed with status check but application works fine](#deploy-job-failed-with-status-check-but-application-works-fine)
+  * [Deploy job failed with unknown fields in kafkaservices.qubership.com](#deploy-job-failed-with-unknown-fields-in-kafkaservicesqubershipcom)
+  * [Deploy job failed with some error in templates](#deploy-job-failed-with-some-error-in-templates)
+  * [How to deploy several Kafka clusters with one ZooKeeper](#how-to-deploy-several-kafka-clusters-with-one-zookeeper)
+<!-- TOC -->
 
 # General Information
 
@@ -1486,23 +1593,26 @@ You can use the following tags:
 
 ## Cruise Control
 
-| Parameter                               | Type    | Mandatory | Default value                                                      | Description                                                                                                                                                                                                                                                                                                                                                                             |
-|-----------------------------------------|---------|-----------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| cruiseControl.install                   | boolean | no        | false                                                              | Whether the Cruise Control component is to be deployed or not. The value should be equal to `true` to install Cruise Control.                                                                                                                                                                                                                                                           |
-| cruiseControl.dockerImage               | string  | no        | Calculates automatically                                           | The Docker image of Cruise Control.                                                                                                                                                                                                                                                                                                                                                     |
+| Parameter                               | Type    | Mandatory | Default value                                                     | Description                                                                                                                                                                                                                                                                                                                                                                             |
+|-----------------------------------------|---------|-----------|-------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| cruiseControl.install                   | boolean | no        | false                                                             | Whether the Cruise Control component is to be deployed or not. The value should be equal to `true` to install Cruise Control.                                                                                                                                                                                                                                                           |
+| cruiseControl.dockerImage               | string  | no        | Calculates automatically                                          | The Docker image of Cruise Control.                                                                                                                                                                                                                                                                                                                                                     |
 | cruiseControl.config                    | object  | no        | See in  [values.yaml](../../charts/helm/kafka-service/values.yaml) | The set of parameters for Cruise Control. Parameters can be changed and added during deployment if needed. See whole parameter list in official Cruise Control deployment documentation [https://github.com/linkedin/cruise-control/wiki/Configurations#cruise-control-configurations/](https://github.com/linkedin/cruise-control/wiki/Configurations#cruise-control-configurations/). |
-| cruiseControl.capacity.diskSpace        | string  | no        | ""                                                                 | The disk space in MB for Kafka Broker. The default value is taken from `kafka.storage.size` parameter.                                                                                                                                                                                                                                                                                  |
-| cruiseControl.capacity.cpu              | string  | no        | 100                                                                | The cpu usage in percentage for Kafka Broker.                                                                                                                                                                                                                                                                                                                                           |
-| cruiseControl.capacity.nwIn             | string  | no        | 10000                                                              | The network inbound in KB for Kafka Broker.                                                                                                                                                                                                                                                                                                                                             |
-| cruiseControl.capacity.nwOut            | string  | no        | 10000                                                              | The network outbound in KB for Kafka Broker.                                                                                                                                                                                                                                                                                                                                            |
-| cruiseControl.ui.enabled                | boolean | no        | true                                                               | Whether Cruise Control UI enabled.                                                                                                                                                                                                                                                                                                                                                      |
-| cruiseControl.heapOpts                  | string  | no        | -Xmx1G                                                             | The heap opts of JVM.                                                                                                                                                                                                                                                                                                                                                                   |
-| cruiseControl.ingress.host              | string  | no        | ""                                                                 | The name of external host which the Cruise Control UI should be available on. It must be complex and unique enough not to intersect with other possible external host names.                                                                                                                                                                                                            |
-| cruiseControl.prometheusServerEndpoint  | string  | yes       | ""                                                                 | The Prometheus Server Endpoint for Cruise Control in `host:port` format. This parameter is mandatory in case `global.externalKafka.enabled: true`.                                                                                                                                                                                                                                      |
-| cruiseControl.resources.requests.memory | string  | no        | 512Mi                                                              | The minimum amount of memory the container should use. The value can be specified with SI suffixes (E, P, T, G, M, K, m) or their power-of-two-equivalents (Ei, Pi, Ti, Gi, Mi, Ki).                                                                                                                                                                                                    |
-| cruiseControl.resources.requests.cpu    | string  | no        | 200m                                                               | The minimum number of CPUs the container should use.                                                                                                                                                                                                                                                                                                                                    |
-| cruiseControl.resources.limits.memory   | string  | no        | 1024Mi                                                             | The maximum amount of memory the container can use. The value can be specified with SI suffixes (E, P, T, G, M, K, m) or their power-of-two-equivalents (Ei, Pi, Ti, Gi, Mi, Ki).                                                                                                                                                                                                       |
-| cruiseControl.resources.limits.cpu      | string  | no        | 400m                                                               | The maximum number of CPUs the container can use.                                                                                                                                                                                                                                                                                                                                       |
+| cruiseControl.capacity.diskSpace        | string  | no        | ""                                                                | The disk space in MB for Kafka Broker. The default value is taken from `kafka.storage.size` parameter.                                                                                                                                                                                                                                                                                  |
+| cruiseControl.capacity.cpu              | string  | no        | 100                                                               | The cpu usage in percentage for Kafka Broker.                                                                                                                                                                                                                                                                                                                                           |
+| cruiseControl.capacity.nwIn             | string  | no        | 10000                                                             | The network inbound in KB for Kafka Broker.                                                                                                                                                                                                                                                                                                                                             |
+| cruiseControl.capacity.nwOut            | string  | no        | 10000                                                             | The network outbound in KB for Kafka Broker.                                                                                                                                                                                                                                                                                                                                            |
+| cruiseControl.ui.enabled                | boolean | no        | true                                                              | Whether Cruise Control UI enabled.                                                                                                                                                                                                                                                                                                                                                      |
+| cruiseControl.heapOpts                  | string  | no        | -Xmx1G                                                            | The heap opts of JVM.                                                                                                                                                                                                                                                                                                                                                                   |
+| cruiseControl.ingress.host              | string  | no        | ""                                                                | The name of external host which the Cruise Control UI should be available on. It must be complex and unique enough not to intersect with other possible external host names.                                                                                                                                                                                                            |
+| cruiseControl.prometheusServerEndpoint  | string  | yes       | ""                                                                | The Prometheus Server Endpoint for Cruise Control in `host:port` format. This parameter is mandatory in case `global.externalKafka.enabled: true`.                                                                                                                                                                                                                                      |
+| cruiseControl.resources.requests.memory | string  | no        | 512Mi                                                             | The minimum amount of memory the container should use. The value can be specified with SI suffixes (E, P, T, G, M, K, m) or their power-of-two-equivalents (Ei, Pi, Ti, Gi, Mi, Ki).                                                                                                                                                                                                    |
+| cruiseControl.resources.requests.cpu    | string  | no        | 200m                                                              | The minimum number of CPUs the container should use.                                                                                                                                                                                                                                                                                                                                    |
+| cruiseControl.resources.limits.memory   | string  | no        | 1024Mi                                                            | The maximum amount of memory the container can use. The value can be specified with SI suffixes (E, P, T, G, M, K, m) or their power-of-two-equivalents (Ei, Pi, Ti, Gi, Mi, Ki).                                                                                                                                                                                                       |
+| cruiseControl.resources.limits.cpu      | string  | no        | 400m                                                              | The maximum number of CPUs the container can use.                                                                                                                                                                                                                                                                                                                                       |
+| cruiseControl.affinity                  | object  | no        | {}                                                                | The affinity scheduling rules. Specify the value in json format. The parameter can be empty.                                                                                                                                                                                                                                                                                            |
+| cruiseControl.tolerations               | list    | no        | []                                                                | The YAML string to specify toleration policies.                                                                                                                                                                                                                                                                                                                                         |
+| cruiseControl.nodeSelector              | object  | no        | {}                                                                | The labels for backup daemon pod assignment, formatted as a JSON string. If you use predefined Persistent Volume for backup daemon you need to specify Kubernetes node where PV's folder is placed.                                                                                                                                                                                                                                                                                                                                       |
 
 ## CRD-Init job
 

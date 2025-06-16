@@ -26,6 +26,18 @@ spec:
         name: {{ template "kafka.name" . }}-cruise-control
         component: kafka-cruise-control
     spec:
+      {{- if .Values.cruiseControl.affinity }}
+      affinity:
+        {{ tpl (.Values.cruiseControl.affinity | toYaml) . | nindent 8 | trim }}
+      {{- end }}
+      {{- if .Values.cruiseControl.tolerations }}
+      tolerations:
+        {{ .Values.cruiseControl.tolerations | toYaml | indent 8 | trim }}
+      {{- end }}
+      {{- if .Values.cruiseControl.nodeSelector }}
+      nodeSelector:
+        {{ .Values.cruiseControl.nodeSelector | toYaml | indent 8 | trim }}
+      {{- end }}
       securityContext:
         {{- include "kafka-service.globalPodSecurityContext" . | nindent 8 }}
         {{- with .Values.cruiseControl.securityContext }}
@@ -61,12 +73,12 @@ spec:
             - name: KAFKA_AUTH_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "kafka.name" . }}-secret
+                  name: {{ template "kafka.name" . }}-services-secret
                   key: client-username
             - name: KAFKA_AUTH_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "kafka.name" . }}-secret
+                  name: {{ template "kafka.name" . }}-services-secret
                   key: client-password
             - name: ADMIN_USERNAME
               valueFrom:
