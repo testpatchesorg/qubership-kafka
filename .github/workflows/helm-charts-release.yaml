@@ -8,6 +8,10 @@ on:
         description: 'Release version'
         required: true
         type: string
+      drd-release:
+        description: 'DRD Release version'
+        required: true
+        type: string
 permissions:
   contents: write
   packages: write
@@ -15,6 +19,8 @@ run-name: ${{ github.repository }} Release ${{ github.event.inputs.release }}
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+env:
+  drd_release: ${{ inputs.drd_release }}
 jobs:
   check-tag:
     runs-on: ubuntu-latest
