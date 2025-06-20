@@ -1,3 +1,15 @@
+FROM amazoncorretto:11-alpine AS builder
+
+RUN apk add --no-cache maven git
+
+WORKDIR /build
+
+COPY kafka-mm2-extension/pom.xml .
+RUN mvn dependency:go-offline
+
+COPY kafka-mm2-extension /build
+RUN mvn clean package
+
 FROM eclipse-temurin:21.0.7_6-jdk-alpine-3.21
 
 ENV KAFKA_HOME=/opt/kafka \
@@ -96,7 +108,7 @@ RUN set -x \
         "https://repo1.maven.org/maven2/io/strimzi/mirror-maker-2-extensions/1.2.0/mirror-maker-2-extensions-1.2.0.jar"
 
 # Copy kafka mirror maker extension
-COPY docker/kafka-mm2-extension-*.jar ${KAFKA_HOME}/libs
+COPY --from=builder /build/target/kafka-mm2-extension-*.jar ${KAFKA_HOME}/libs
 
 # Copy config and script files
 COPY docker/config/ ${KAFKA_HOME}/config
