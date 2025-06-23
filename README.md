@@ -70,6 +70,8 @@ The developer should configure environment variables:
 * `WATCH_NAMESPACE` - namespace, in which custom resources should be proceeded.
 * `OPERATOR_NAMESPACE` - namespace, where Kafka-Services should be proceeded.
 
+> **Note:** The `secondaryApiGroup` parameter was added to enable listening to several API groups with the same CR type.
+
 ### How to troubleshoot
 
 There are no well-defined rules for troubleshooting, as each task is unique, but there are some tips that can do:

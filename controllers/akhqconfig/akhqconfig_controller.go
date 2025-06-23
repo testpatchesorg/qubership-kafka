@@ -18,6 +18,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"github.com/Netcracker/qubership-kafka/controllers"
 	"strings"
 
 	akhqconfigv1 "github.com/Netcracker/qubership-kafka/api/v1"
@@ -39,7 +40,7 @@ import (
 var log = logf.Log.WithName("controller_akhq_config")
 
 const (
-	akhqFinalizer               = "qubership.org/akhq-config-controller"
+	akhqFinalizerName           = "akhq-config-controller"
 	internalServerError         = "internal server error, config was not applied"
 	protobufConfigurationCMName = "akhq-protobuf-configuration"
 	decodingValidationError     = "can not decode descriptor-file-base64 config which is associated with [%s] regular expression"
@@ -68,6 +69,7 @@ type AkhqConfigReconciler struct {
 	client.Client
 	Scheme    *runtime.Scheme
 	Namespace string
+	ApiGroup  string
 }
 
 //+kubebuilder:rbac:groups=qubership.org,resources=akhqconfigs,verbs=get;list;watch;create;update;patch;delete
@@ -77,7 +79,7 @@ type AkhqConfigReconciler struct {
 func (r *AkhqConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	reqLogger := log.WithValues("Request.Namespace", req.Namespace, "Request.Name", req.Name)
 	reqLogger.Info("Reconciling AkhqConfig")
-
+	akhqFinalizer := fmt.Sprintf("%s/%s", r.ApiGroup, akhqFinalizerName)
 	instance := &akhqconfigv1.AkhqConfig{}
 	err := r.Client.Get(context.TODO(), req.NamespacedName, instance)
 	if err != nil {
@@ -88,6 +90,10 @@ func (r *AkhqConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 			return reconcile.Result{}, nil
 		}
 		return reconcile.Result{}, err
+	}
+
+	if !controllers.ApiGroupMatches(instance.APIVersion, r.ApiGroup) {
+		return reconcile.Result{}, nil
 	}
 
 	if instance.DeletionTimestamp.IsZero() {
@@ -237,6 +243,7 @@ func (r *AkhqConfigReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	statusPredicate := predicate.Funcs{
 		UpdateFunc: func(e event.UpdateEvent) bool {
 			// Ignore updates to CR status in which case metadata.Generation does not change
+
 			return e.ObjectOld.GetGeneration() != e.ObjectNew.GetGeneration()
 		},
 		DeleteFunc: func(e event.DeleteEvent) bool {
