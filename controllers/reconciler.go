@@ -17,6 +17,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/Netcracker/qubership-kafka/util"
 	"github.com/go-logr/logr"
@@ -44,6 +45,7 @@ type Reconciler struct {
 	Scheme           *runtime.Scheme
 	ResourceVersions map[string]string
 	ResourceHashes   map[string]string
+	ApiGroup         string
 }
 
 func (r *Reconciler) FindPodList(namespace string, podLabels map[string]string) (*corev1.PodList, error) {
@@ -81,6 +83,11 @@ func GetActualPodNames(pods []corev1.Pod) []string {
 		names = append(names, pod.Name)
 	}
 	return names
+}
+
+func ApiGroupMatches(apiVersion string, targetApiGroup string) bool {
+	apiGroup := strings.Split(apiVersion, "/")[0]
+	return apiGroup == targetApiGroup
 }
 
 func (r *Reconciler) GetNodeLabel(nodeName string, labelName string, logger logr.Logger) (string, error) {

@@ -220,7 +220,13 @@ func (r *AkhqConfigReconciler) fullUpdateDeserializationConfig(existingConfigs [
 	insertPosition := len(existingConfigs)
 	for i := 0; i < len(existingConfigs); i++ {
 		existedConfig := existingConfigs[i]
-		shortFileName := strings.Split(existedConfig.DescriptorFile, "/")[1]
+		var shortFileName string
+		splitNames := strings.Split(existedConfig.DescriptorFile, "/")
+		if len(splitNames) == 2 {
+			shortFileName = splitNames[1]
+		} else {
+			shortFileName = splitNames[0]
+		}
 		if existedConfig.Name == crFullName {
 			if crConfig, ok := crConfigsMap[existedConfig.TopicRegex]; ok {
 				existedConfig.KeyMessageType = crConfig.KeyType

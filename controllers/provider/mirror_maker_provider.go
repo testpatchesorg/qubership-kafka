@@ -121,7 +121,7 @@ func (mmrp MirrorMakerResourceProvider) GetMirrorMakerProperties() string {
 	var targetClusterNames []string
 	if mmrp.spec.RegionName != "" {
 		mmrp.logger.Info(fmt.Sprintf("Create a cross-datacenter replication config for region: %s", mmrp.spec.RegionName))
-		targetClusterNames = []string{mmrp.spec.RegionName}
+		targetClusterNames = []string{strings.ToLower(mmrp.spec.RegionName)}
 		clustersConfiguration = append(clustersConfiguration, fmt.Sprintf("target.dc=%s", mmrp.spec.RegionName))
 	} else {
 		targetClusterNames = clusterNames

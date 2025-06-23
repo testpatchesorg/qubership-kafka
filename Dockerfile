@@ -17,6 +17,8 @@ COPY main.go main.go
 COPY api api/
 COPY controllers controllers/
 COPY util util/
+COPY cfg cfg/
+COPY workers workers/
 
 # Tests
 RUN CGO_ENABLED=0 go test -v ./...

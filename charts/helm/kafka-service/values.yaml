@@ -131,6 +131,7 @@ operator:
   dockerImage: ghcr.io/netcracker/qubership-kafka-service-operator:main
   replicas: 1
   apiGroup: "qubership.org"
+  secondaryApiGroup: ""
   kmmConfiguratorEnabled: false
   resources:
     requests:
@@ -702,6 +703,46 @@ cruiseControl:
 
   prometheusServerEndpoint: ""
 
+  # Affinity Settings for Backup Daemon pod, formatted as a JSON string.
+  # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  # Example:
+  # affinity: {
+  #   "nodeAffinity": {
+  #     "requiredDuringSchedulingIgnoredDuringExecution": {
+  #       "nodeSelectorTerms": [
+  #         {
+  #           "matchExpressions": [
+  #             {
+  #               "key": "node-role.kubernetes.io/master",
+  #               "operator": "DoesNotExist"
+  #             }
+  #           ]
+  #         }
+  #       ]
+  #     }
+  #   }
+  # }
+  affinity: {}
+
+  # Toleration Settings for Backup Daemon pod
+  # This should be a JSON string matching the Toleration array
+  # in a PodSpec.
+  # Example:
+  # tolerations: [
+  #   {
+  #     "operator": "Exists"
+  #   }
+  # ]
+  tolerations: []
+
+  # nodeSelector labels for syncCatalog pod assignment, formatted as a JSON string.
+  # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  # Example:
+  # nodeSelector: {
+  #   "beta.kubernetes.io/arch": "amd64"
+  # }
+  nodeSelector: {}
+
   resources:
     requests:
       memory: "512Mi"
@@ -709,3 +750,12 @@ cruiseControl:
     limits:
       memory: "1024Mi"
       cpu: "400m"
+# Cloud Release Integration
+# The name of the Service exposed for the database.
+SERVICE_NAME: "kafka-services"
+# Microservice belonging to a group
+PART_OF: "kafka-services"
+# Delimiter for labels
+DELIMITER: "-"
+# Artifact descriptor version which is installed.
+ARTIFACT_DESCRIPTOR_VERSION: ""  # TO_BE_REPLACED
