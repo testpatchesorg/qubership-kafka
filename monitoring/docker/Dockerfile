@@ -1,4 +1,4 @@
-FROM golang:1.22.8-alpine3.20 as builder
+FROM golang:1.24.4-alpine3.22 as builder
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
@@ -22,7 +22,7 @@ RUN set -x \
 # Build
 RUN GOOS=linux GOARCH=amd64 GO111MODULE=on go build -tags musl -a -o additional-metrics main.go
 
-FROM telegraf:1.32.2-alpine
+FROM telegraf:1.35.1-alpine
 
 ENV KAFKA_MONITORING_HOME=/opt/kafka-monitoring \
     KAFKA_CTL_CONFIG=/opt/kafka-monitoring/kafkactl.yml \
