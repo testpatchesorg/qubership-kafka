@@ -83,7 +83,7 @@ RUN set -x \
         --no-check-certificate \
         -nv \
         -O ${KAFKA_HOME}/libs/jmx_prometheus_javaagent-${PROMETHEUS_JMX_EXPORTER_VERSION}.jar \
-        "https://github.com/prometheus/jmx_exporter/releases/download/${PROMETHEUS_JMX_EXPORTER_VERSION}/jmx_prometheus_javaagent-${PROMETHEUS_JMX_EXPORTER_VERSION}.jar"
+        "https://github.com/prometheus/jmx_exporter/releases/download/${PROMETHEUS_JMX_EXPORTER_VERSION}/prometheus-jmx-exporter-${PROMETHEUS_JMX_EXPORTER_VERSION}.jar"
 
 # Install Kubernetes config provider
 ARG KAFKA_KUBERNETES_CONFIG_PROVIDER_VERSION="1.0.0"
