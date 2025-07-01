@@ -20,7 +20,7 @@ import requests
 from kafka import KafkaConsumer, KafkaProducer
 from kafka.admin import (NewTopic, NewPartitions, KafkaAdminClient, ACL, ACLFilter, ResourceType,
                          ACLOperation, ACLPermissionType, ResourcePattern, ConfigResource, ConfigResourceType)
-from kafka.oauth import AbstractTokenProvider
+from kafka.sasl import AbstractTokenProvider
 from robot.api import logger
 from robot.libraries.BuiltIn import BuiltIn
 
