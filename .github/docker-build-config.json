@@ -12,13 +12,13 @@
     },
     {
     "name": "qubership-kafka-operator",
-    "file": "Dockerfile",
-    "context": "."
+    "file": "operator/Dockerfile",
+    "context": "operator"
     },
     {
     "name": "qubership-kafka-service-operator",
-    "file": "Dockerfile",
-    "context": "."
+    "file": "operator/Dockerfile",
+    "context": "operator"
     },
     {
     "name": "qubership-kafka-transfer",

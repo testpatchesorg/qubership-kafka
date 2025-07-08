@@ -17,11 +17,11 @@ jobs:
             file: crd-init/docker/Dockerfile
             context: crd-init
           - name: qubership-kafka-operator
-            file: Dockerfile
-            context: .
+            file: operator/Dockerfile
+            context: operator
           - name: qubership-kafka-service-operator
-            file: Dockerfile
-            context: .
+            file: operator/Dockerfile
+            context: operator
           - name: qubership-kafka-service-transfer
             file: docker-transfer/kafka-service/Dockerfile
             context: ""
