@@ -3,10 +3,10 @@ package jobs
 import (
 	"context"
 	"fmt"
-	"github.com/Netcracker/qubership-kafka/controllers"
-	"github.com/Netcracker/qubership-kafka/controllers/kafka"
-	"github.com/Netcracker/qubership-kafka/controllers/kafkaservice"
 	"github.com/Netcracker/qubership-kafka/operator/cfg"
+	"github.com/Netcracker/qubership-kafka/operator/controllers"
+	"github.com/Netcracker/qubership-kafka/operator/controllers/kafka"
+	"github.com/Netcracker/qubership-kafka/operator/controllers/kafkaservice"
 	"github.com/go-logr/logr"
 	"os"
 	ctrl "sigs.k8s.io/controller-runtime"
