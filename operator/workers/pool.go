@@ -3,7 +3,7 @@ package workers
 import (
 	"context"
 	"github.com/Netcracker/qubership-kafka/operator/cfg"
-	"github.com/Netcracker/qubership-kafka/workers/jobs"
+	"github.com/Netcracker/qubership-kafka/operator/workers/jobs"
 	"github.com/go-logr/logr"
 	"golang.org/x/sync/errgroup"
 )
