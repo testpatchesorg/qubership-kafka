@@ -18,10 +18,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Netcracker/qubership-kafka/controllers"
-	"github.com/Netcracker/qubership-kafka/controllers/provider"
 	kafkaservice "github.com/Netcracker/qubership-kafka/operator/api/v7"
-	"github.com/Netcracker/qubership-kafka/util"
+	"github.com/Netcracker/qubership-kafka/operator/controllers"
+	"github.com/Netcracker/qubership-kafka/operator/controllers/provider"
+	"github.com/Netcracker/qubership-kafka/operator/util"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"

@@ -3,10 +3,10 @@ package jobs
 import (
 	"context"
 	"fmt"
-	qubershiporgv7 "github.com/Netcracker/qubership-kafka/api/v7"
-	"github.com/Netcracker/qubership-kafka/cfg"
 	qubershiporgv1 "github.com/Netcracker/qubership-kafka/operator/api/v1"
-	"github.com/Netcracker/qubership-kafka/util"
+	qubershiporgv7 "github.com/Netcracker/qubership-kafka/operator/api/v7"
+	"github.com/Netcracker/qubership-kafka/operator/cfg"
+	"github.com/Netcracker/qubership-kafka/operator/util"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"

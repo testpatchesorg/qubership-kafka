@@ -3,8 +3,8 @@ package jobs
 import (
 	"context"
 	"fmt"
-	"github.com/Netcracker/qubership-kafka/controllers/kmmconfig"
 	"github.com/Netcracker/qubership-kafka/operator/cfg"
+	"github.com/Netcracker/qubership-kafka/operator/controllers/kmmconfig"
 	"github.com/go-logr/logr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
