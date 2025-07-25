@@ -1,4 +1,4 @@
-module github.com/Netcracker/qubership-kafka
+module github.com/Netcracker/qubership-kafka/operator
 
 go 1.24
 

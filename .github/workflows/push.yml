@@ -57,17 +57,17 @@ jobs:
             file: docker-akhq/docker/Dockerfile
             context: docker-akhq
           - name: qubership-docker-kafka-lag-exporter
-            file: docker-kafka-lag-exporter/docker/Dockerfile
-            context: docker-kafka-lag-exporter
+            file: lag-exporter/docker/Dockerfile
+            context: lag-exporter
           - name: qubership-docker-cruise-control
             file: docker-cruise-control/docker/Dockerfile
             context: docker-cruise-control
           - name: qubership-kafka-mirror-maker-monitoring
-            file: kafka-mirror-maker-monitoring/docker/Dockerfile
-            context: kafka-mirror-maker-monitoring
+            file: mirror-maker-monitoring/docker/Dockerfile
+            context: mirror-maker-monitoring
           - name: qubership-docker-kafka-mirror-maker
-            file: kafka-mirror-maker/docker/Dockerfile
-            context: kafka-mirror-maker
+            file: mirror-maker/docker/Dockerfile
+            context: mirror-maker
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -104,9 +104,3 @@ jobs:
           push: ${{ env.PUSH }}
           tags: ghcr.io/${{ env.GITHUB_GROUP }}/${{ matrix.component.name }}:${{ env.TAG_NAME }}
           provenance: false
-      - uses: actions/delete-package-versions@v5
-        with:
-          package-name: ${{ matrix.component.name }}
-          package-type: 'container'
-          package-version-ids: ${{ steps.get-ids-for-delete.outputs.ids-for-delete }}
-        if: ${{ steps.get-ids-for-delete.outputs.ids-for-delete != '' }}
