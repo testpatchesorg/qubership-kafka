@@ -17,6 +17,8 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"strings"
 
 	"github.com/Netcracker/qubership-kafka/operator/util"
@@ -453,11 +455,19 @@ func (r *Reconciler) FindSecret(name string, namespace string, logger logr.Logge
 	return foundSecret, err
 }
 
-func (r *Reconciler) WatchSecret(secretName string, cr metav1.Object, logger logr.Logger) (*corev1.Secret, error) {
+func (r *Reconciler) WatchSecret(secretName string, obj runtime.Object, logger logr.Logger) (*corev1.Secret, error) {
+	cr, err := toUnstructured(obj)
+	if err != nil {
+		return nil, err
+	}
 	secret, err := r.FindSecret(secretName, cr.GetNamespace(), logger)
 	if err != nil {
 		return nil, err
 	} else {
+		// Check if there's an existing owner reference
+		if existing := metav1.GetControllerOf(secret); existing != nil && !referSameObject(existing.Name, existing.APIVersion, existing.Kind, cr.GetName(), cr.GetAPIVersion(), cr.GetKind()) {
+			secret.OwnerReferences = nil
+		}
 		if err := controllerutil.SetControllerReference(cr, secret, r.Scheme); err != nil {
 			return nil, err
 		}
@@ -514,4 +524,34 @@ func (r *Reconciler) ScaleDeployment(name string, replicas int32, namespace stri
 		return r.Client.Update(context.TODO(), foundDeployment)
 	}
 	return err
+}
+
+func referSameObject(aName string, aGroup string, aKind string, bName string, bGroup string, bKind string) bool {
+	aGV, err := schema.ParseGroupVersion(aGroup)
+	if err != nil {
+		return false
+	}
+
+	bGV, err := schema.ParseGroupVersion(bGroup)
+	if err != nil {
+		return false
+	}
+
+	return aGV.Group == bGV.Group && aKind == bKind && aName == bName
+}
+
+// ToUnstructured converts runtime.Object into *unstructured.Unstructured.
+func toUnstructured(obj runtime.Object) (*unstructured.Unstructured, error) {
+	if u, ok := obj.(*unstructured.Unstructured); ok {
+		return u, nil
+	}
+	if obj == nil {
+		return nil, fmt.Errorf("to unstructured: nil object")
+	}
+
+	m, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
+	if err != nil {
+		return nil, fmt.Errorf("to unstructured: %w", err)
+	}
+	return &unstructured.Unstructured{Object: m}, nil
 }
