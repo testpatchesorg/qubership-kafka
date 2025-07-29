@@ -13,7 +13,7 @@ charts:
       - ghcr.io/netcracker/qubership-docker-kafka-lag-exporter:${release}
       - ghcr.io/netcracker/qubership-docker-cruise-control:${release}
       - ghcr.io/netcracker/qubership-kafka-mirror-maker-monitoring:${release}
-      - ghcr.io/netcracker/qubership-disaster-recovery-daemon:${drd_release}
+      - ghcr.io/netcracker/qubership-disaster-recovery-daemon:#latest
   - name: qubership-kafka
     chart_file: operator/charts/helm/kafka-service/Chart.yaml
     values_file: operator/charts/helm/kafka-service/values.yaml
