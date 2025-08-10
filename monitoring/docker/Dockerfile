@@ -55,8 +55,6 @@ RUN set -x \
 # Upgrade all tools to avoid vulnerabilities
 RUN set -x && apk upgrade --no-cache --available
 
-RUN rm /usr/lib/python3.11/EXTERNALLY-MANAGED
-
 # Install misc tools
 RUN set -x \
     && python3 -m ensurepip \
