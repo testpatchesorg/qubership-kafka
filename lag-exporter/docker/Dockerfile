@@ -22,7 +22,7 @@ RUN chmod -R 777 ${LAG_EXPORTER_HOME}
 
 COPY docker/entrypoint.sh /opt/docker/bin/entrypoint.sh
 
-RUN chmod +x /opt/docker/bin/entrypoint.sh
+RUN chmod +x /opt/docker/bin/entrypoint.sh && chmod +x /opt/docker/bin/kafka-lag-exporter
 
 USER 1001
 
