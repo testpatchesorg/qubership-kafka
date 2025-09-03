@@ -12,7 +12,7 @@ USER 0
 
 RUN set -x \
     && apk add --update --no-cache \
-        openssl \
+        bash openssl \
     && rm -rf /var/cache/apk/*
 
 # Upgrade all tools to avoid vulnerabilities
