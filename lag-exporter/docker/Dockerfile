@@ -2,7 +2,8 @@ FROM seglo/kafka-lag-exporter:0.8.2 as builder
 
 FROM eclipse-temurin:21-jdk-alpine-3.22
 
-COPY --from=builder /opt/docker/bin /opt/docker/lib /opt/docker
+COPY --from=builder /opt/docker/bin /opt/docker/bin
+COPY --from=builder /opt/docker/lib /opt/docker/lib
 
 ENV LAG_EXPORTER_HOME=/opt/docker
 
