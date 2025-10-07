@@ -53,12 +53,12 @@ jobs:
         if: github.event_name == 'repository_dispatch' && github.event.action == 'kafka-patched-build'
         id: set-vars
         run: |
-          echo "kafka_disrto_url=${kafka_distro_url}" >> $GITHUB_OUTPUT
-          echo "kafka_distro=${kafka_distro_url##*/}" >> $GITHUB_OUTPUT
-          echo "kafka_version=${kafka_versionn}" >> $GITHUB_OUTPUT
+          echo "kafka_disrto_url=${KAFKA_DISTRO_URL}" >> $GITHUB_OUTPUT
+          echo "kafka_distro=${KAFKA_DISTRO_URL##*/}" >> $GITHUB_OUTPUT
+          echo "kafka_version=${KAFKA_VERSION}" >> $GITHUB_OUTPUT
         env:
-          kafka_distro_url: ${{ github.event.client_payload.kafka-distro-url }}
-          kafka_version: ${{ github.event.client_payload.kafka-version }}
+          KAFKA_DISTRO_URL: ${{ github.event.client_payload.kafka-distro-url }}
+          KAFKA_VERSION: ${{ github.event.client_payload.kafka-version }}
       - name: Debug
         run: |
           echo "kafka_distro_url: ${{ steps.set-vars.outputs.kafka_distro_url }}"
