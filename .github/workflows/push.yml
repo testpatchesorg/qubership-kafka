@@ -57,7 +57,7 @@ jobs:
           echo "kafka_distro=${kafka_distro_url##*/}" >> $GITHUB_OUTPUT
           echo "kafka_version=${kafka_versionn}" >> $GITHUB_OUTPUT
         env:
-          kafka_distro_url: ${{ github.event.client_payload.kafka-disto-url }}
+          kafka_distro_url: ${{ github.event.client_payload.kafka-distro-url }}
           kafka_version: ${{ github.event.client_payload.kafka-version }}
 
   multiplatform_build:
