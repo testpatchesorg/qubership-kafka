@@ -43,7 +43,6 @@ concurrency:
 
 jobs:
   prepare-inputs:
-    if: github.event_name == 'repository_dispatch' && github.event.action == 'kafka-patched-build'
     runs-on: ubuntu-latest
     outputs:
       kafka_distro_url: ${{ steps.set-vars.outputs.kafka_distro_url }}
@@ -51,6 +50,7 @@ jobs:
       kafka_version: ${{ steps.set-vars.outputs.kafka_version }}
     steps:
       - name: Set Variables
+        if: github.event_name == 'repository_dispatch' && github.event.action == 'kafka-patched-build'
         id: set-vars
         run: |
           echo "kafka_disrto_url=${kafka_distro_url}" >> $GITHUB_OUTPUT
@@ -59,8 +59,14 @@ jobs:
         env:
           kafka_distro_url: ${{ github.event.client_payload.kafka-distro-url }}
           kafka_version: ${{ github.event.client_payload.kafka-version }}
+      - name: Debug
+        run: |
+          echo "kafka_distro_url: ${{ steps.set-vars.outputs.kafka_distro_url }}"
+          echo "kafka_distro: ${{ steps.set-vars.outputs.kafka_distro }}"
+          echo "kafka_version: ${{ steps.set-vars.outputs.kafka_version }}"
 
   multiplatform_build:
+    needs: [prepare-inputs]
     if: github.event.pull_request.user.login != 'dependabot[bot]' || github.event_name == 'pull_request'
     strategy:
       fail-fast: false
