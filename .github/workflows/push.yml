@@ -10,6 +10,7 @@ on:
     branches:
       - '**'
     paths-ignore:
+      - '.github/**'
       - 'docs/**'
       - 'CODE-OF-CONDUCT.md'
       - 'CONTRIBUTING.md'
@@ -20,13 +21,15 @@ on:
     branches:
       - '**'
     paths-ignore:
+      - '.github/**'
       - 'docs/**'
       - 'CODE-OF-CONDUCT.md'
       - 'CONTRIBUTING.md'
       - 'LICENSE'
       - 'README.md'
       - 'SECURITY.md'
-
+  repository_dispatch:
+    types: [kafka-patched-build]
 env:
   TAG_NAME: ${{ github.event.release.tag_name || github.ref }}
   GITHUB_GROUP: ${{ github.repository_owner }}
@@ -39,6 +42,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  prepare-inputs:
+    if: github.event_name == 'repository_dispatch' && github.event.action == 'kafka-patched-build'
+    runs-on: ubuntu-latest
+    outputs:
+      kafka_disto_url: ${{ steps.set-vars.outputs.kafka_disto_url }}
+    steps:
+      - name: Set Variables
+        id: set-vars
+        run: |
+          echo "kafka_disto_url=${kafka_distro_url}" >> $GITHUB_OUTPUT
+          echo "kafka_distro=${kafka_distro_url##*/}" >> $GITHUB_OUTPUT
+          echo "kafka_version=${kafka_versionn}" >> $GITHUB_OUTPUT
+        env:
+          kafka_disto_url: ${{ github.event.client_payload.kafka-disto-url }}
+          kafka_version: ${{ github.event.client_payload.kafka-version }}
+
   multiplatform_build:
     if: github.event.pull_request.user.login != 'dependabot[bot]' || github.event_name == 'pull_request'
     strategy:
@@ -122,3 +141,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' && github.actor != 'dependabot[bot]' }}
           tags: ghcr.io/${{ env.GITHUB_GROUP }}/${{ matrix.component.name }}:${{ env.TAG_NAME }}
           provenance: false
+          build-args: |
+            KAFKA_DISTRO_URL=${{ needs.prepare-inputs.outputs.kafka_disto_url }}
+            DISTRO_NAME=${{ needs.prepare-inputs.outputs.kafka_distro }}
+            KAFKA_VERSION=${{ needs.prepare-inputs.outputs.kafka_version }}
