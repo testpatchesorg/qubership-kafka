@@ -54,7 +54,8 @@ jobs:
         id: set-vars
         run: |
           echo "kafka_distro_url=${KAFKA_DISTRO_URL}" >> $GITHUB_OUTPUT
-          echo "kafka_distro=${KAFKA_DISTRO_URL##*/}" >> $GITHUB_OUTPUT
+          kafka_distro_tgz="${KAFKA_DISTRO_URL##*/}"
+          echo "kafka_distro=${kafka_distro_tgz%.*}" >> $GITHUB_OUTPUT
           echo "kafka_version=${KAFKA_VERSION}" >> $GITHUB_OUTPUT
         env:
           KAFKA_DISTRO_URL: ${{ github.event.client_payload.kafka-distro-url }}
