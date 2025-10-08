@@ -48,6 +48,7 @@ jobs:
       kafka_distro_url: ${{ steps.set-vars.outputs.kafka_distro_url }}
       kafka_distro: ${{ steps.set-vars.outputs.kafka_distro }}
       kafka_version: ${{ steps.set-vars.outputs.kafka_version }}
+      build_args: ${{ steps.set-vars.outputs.build_args }}
     steps:
       - name: Set Variables
         if: github.event_name == 'repository_dispatch' && github.event.action == 'kafka-patched-build'
@@ -57,6 +58,13 @@ jobs:
           kafka_distro_tgz="${KAFKA_DISTRO_URL##*/}"
           echo "kafka_distro=${kafka_distro_tgz%.*}" >> $GITHUB_OUTPUT
           echo "kafka_version=${KAFKA_VERSION}" >> $GITHUB_OUTPUT
+          BUILD_ARGS=$(cat << EOF
+          KAFKA_DISTRO_URL=${KAFKA_DISTRO_URL}
+          DISTRO_NAME=${kafka_distro_tgz%.*}
+          KAFKA_VERSION=${KAFKA_VERSION}
+          EOF
+          )
+          echo "build_args<<EOF" >> $GITHUB_OUTPUT
         env:
           KAFKA_DISTRO_URL: ${{ github.event.client_payload.kafka-distro-url }}
           KAFKA_VERSION: ${{ github.event.client_payload.kafka-version }}
@@ -65,6 +73,7 @@ jobs:
           echo "kafka_distro_url: ${{ steps.set-vars.outputs.kafka_distro_url }}"
           echo "kafka_distro: ${{ steps.set-vars.outputs.kafka_distro }}"
           echo "kafka_version: ${{ steps.set-vars.outputs.kafka_version }}"
+          echo "build_args: ${{ steps.set-vars.outputs.build_args }}"
 
   multiplatform_build:
     needs: [prepare-inputs]
@@ -150,7 +159,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' && github.actor != 'dependabot[bot]' }}
           tags: ghcr.io/${{ env.GITHUB_GROUP }}/${{ matrix.component.name }}:${{ env.TAG_NAME }}
           provenance: false
-          build-args: |
-            KAFKA_DISTRO_URL=${{ needs.prepare-inputs.outputs.kafka_distro_url }}
-            DISTRO_NAME=${{ needs.prepare-inputs.outputs.kafka_distro }}
-            KAFKA_VERSION=${{ needs.prepare-inputs.outputs.kafka_version }}
+          build-args: ${{ needs.prepare-inputs.outputs.build_args }}
+          # build-args: |
+          #   KAFKA_DISTRO_URL=${{ needs.prepare-inputs.outputs.kafka_distro_url }}
+          #   DISTRO_NAME=${{ needs.prepare-inputs.outputs.kafka_distro }}
+          #   KAFKA_VERSION=${{ needs.prepare-inputs.outputs.kafka_version }}
