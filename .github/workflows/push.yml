@@ -63,7 +63,7 @@ jobs:
           echo "KAFKA_DISTRO_URL=${KAFKA_DISTRO_URL}" >> $GITHUB_OUTPUT
           echo "DISTRO_NAME=${kafka_distro_tgz%.*}" >> $GITHUB_OUTPUT
           echo "KAFKA_VERSION=${KAFKA_VERSION}" >> $GITHUB_OUTPUT
-          echo EOF >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
         env:
           KAFKA_DISTRO_URL: ${{ github.event.client_payload.kafka-distro-url }}
           KAFKA_VERSION: ${{ github.event.client_payload.kafka-version }}
