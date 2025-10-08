@@ -30,6 +30,7 @@ on:
       - 'SECURITY.md'
   repository_dispatch:
     types: [kafka-patched-build]
+  workflow_dispatch: {}
 env:
   TAG_NAME: ${{ github.event.release.tag_name || github.ref }}
   GITHUB_GROUP: ${{ github.repository_owner }}
