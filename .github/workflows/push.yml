@@ -59,13 +59,11 @@ jobs:
           kafka_distro_tgz="${KAFKA_DISTRO_URL##*/}"
           echo "kafka_distro=${kafka_distro_tgz%.*}" >> $GITHUB_OUTPUT
           echo "kafka_version=${KAFKA_VERSION}" >> $GITHUB_OUTPUT
-          BUILD_ARGS=$(cat << EOF
-          KAFKA_DISTRO_URL=${KAFKA_DISTRO_URL}
-          DISTRO_NAME=${kafka_distro_tgz%.*}
-          KAFKA_VERSION=${KAFKA_VERSION}
-          EOF
-          )
-          echo "build_args<<EOF" >> $GITHUB_OUTPUT
+          echo 'build_args<< EOF' >> $GITHUB_OUTPUT
+          echo "KAFKA_DISTRO_URL=${KAFKA_DISTRO_URL}" >> $GITHUB_OUTPUT
+          echo "DISTRO_NAME=${kafka_distro_tgz%.*}" >> $GITHUB_OUTPUT
+          echo "KAFKA_VERSION=${KAFKA_VERSION}" >> $GITHUB_OUTPUT
+          echo EOF >> $GITHUB_OUTPUT
         env:
           KAFKA_DISTRO_URL: ${{ github.event.client_payload.kafka-distro-url }}
           KAFKA_VERSION: ${{ github.event.client_payload.kafka-version }}
