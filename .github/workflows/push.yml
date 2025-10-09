@@ -10,7 +10,6 @@ on:
     branches:
       - '**'
     paths-ignore:
-      - '.github/**'
       - 'docs/**'
       - 'CODE-OF-CONDUCT.md'
       - 'CONTRIBUTING.md'
@@ -21,16 +20,13 @@ on:
     branches:
       - '**'
     paths-ignore:
-      - '.github/**'
       - 'docs/**'
       - 'CODE-OF-CONDUCT.md'
       - 'CONTRIBUTING.md'
       - 'LICENSE'
       - 'README.md'
       - 'SECURITY.md'
-  repository_dispatch:
-    types: [kafka-patched-build]
-  workflow_dispatch: {}
+
 env:
   TAG_NAME: ${{ github.event.release.tag_name || github.ref }}
   GITHUB_GROUP: ${{ github.repository_owner }}
@@ -43,39 +39,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  prepare-inputs:
-    runs-on: ubuntu-latest
-    outputs:
-      kafka_distro_url: ${{ steps.set-vars.outputs.kafka_distro_url }}
-      kafka_distro: ${{ steps.set-vars.outputs.kafka_distro }}
-      kafka_version: ${{ steps.set-vars.outputs.kafka_version }}
-      build_args: ${{ steps.set-vars.outputs.build_args }}
-    steps:
-      - name: Set Variables
-        if: github.event_name == 'repository_dispatch' && github.event.action == 'kafka-patched-build'
-        id: set-vars
-        run: |
-          echo "kafka_distro_url=${KAFKA_DISTRO_URL}" >> $GITHUB_OUTPUT
-          kafka_distro_tgz="${KAFKA_DISTRO_URL##*/}"
-          echo "kafka_distro=${kafka_distro_tgz%.*}" >> $GITHUB_OUTPUT
-          echo "kafka_version=${KAFKA_VERSION}" >> $GITHUB_OUTPUT
-          echo 'build_args<<EOF' >> $GITHUB_OUTPUT
-          echo "KAFKA_DISTRO_URL=${KAFKA_DISTRO_URL}" >> $GITHUB_OUTPUT
-          echo "DISTRO_NAME=${kafka_distro_tgz%.*}" >> $GITHUB_OUTPUT
-          echo "KAFKA_VERSION=${KAFKA_VERSION}" >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
-        env:
-          KAFKA_DISTRO_URL: ${{ github.event.client_payload.kafka-distro-url }}
-          KAFKA_VERSION: ${{ github.event.client_payload.kafka-version }}
-      - name: Debug
-        run: |
-          echo "kafka_distro_url: ${{ steps.set-vars.outputs.kafka_distro_url }}"
-          echo "kafka_distro: ${{ steps.set-vars.outputs.kafka_distro }}"
-          echo "kafka_version: ${{ steps.set-vars.outputs.kafka_version }}"
-          echo "build_args: ${{ steps.set-vars.outputs.build_args }}"
-
   multiplatform_build:
-    needs: [prepare-inputs]
     if: github.event.pull_request.user.login != 'dependabot[bot]' || github.event_name == 'pull_request'
     strategy:
       fail-fast: false
@@ -158,8 +122,3 @@ jobs:
           push: ${{ github.event_name != 'pull_request' && github.actor != 'dependabot[bot]' }}
           tags: ghcr.io/${{ env.GITHUB_GROUP }}/${{ matrix.component.name }}:${{ env.TAG_NAME }}
           provenance: false
-          build-args: ${{ needs.prepare-inputs.outputs.build_args }}
-          # build-args: |
-          #   KAFKA_DISTRO_URL=${{ needs.prepare-inputs.outputs.kafka_distro_url }}
-          #   DISTRO_NAME=${{ needs.prepare-inputs.outputs.kafka_distro }}
-          #   KAFKA_VERSION=${{ needs.prepare-inputs.outputs.kafka_version }}
