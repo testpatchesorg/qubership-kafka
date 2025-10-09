@@ -1,4 +1,4 @@
-name: Build Artifacts
+name: Build patched Kafka Images
 permissions:
   contents: read
   packages: write
