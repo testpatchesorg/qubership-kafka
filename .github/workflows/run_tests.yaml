@@ -6,7 +6,21 @@ on:
     branches: [main]
 
 jobs:
+  Wait-for-images:
+    runs-on: ubuntu-latest
+    outputs:
+      conclusion: ${{ steps.wait.outputs.conclusion }}
+    steps:
+      - name: Wait for push.yml to complete
+        uses: netcracker/qubership-workflow-hub/actions/wait-for-workflow@main
+        id: wait
+        with:
+          workflow: push.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          poll-interval: 20      
   Kafka-Pipeline:
+    needs: Wait-for-images
+    if: ${{ needs.Wait-for-images.outputs.conclusion }} == 'success'  
     uses: Netcracker/qubership-test-pipelines/.github/workflows/kafka.yaml@78f8a355bf7b5b5b88a3339fa0a35c22645bef68
     with:
       service_branch: '${{ github.head_ref || github.ref_name }}'
@@ -14,4 +28,4 @@ jobs:
       pipeline_branch: '78f8a355bf7b5b5b88a3339fa0a35c22645bef68' #this value must match the value after '@' in 'uses'
     secrets:
       AWS_S3_ACCESS_KEY_ID: ${{secrets.AWS_S3_ACCESS_KEY_ID}}
-      AWS_S3_ACCESS_KEY_SECRET: ${{secrets.AWS_S3_ACCESS_KEY_SECRET}}
+      AWS_S3_ACCESS_KEY_SECRET: ${{secrets.AWS_S3_ACCESS_KEY_SECRET}}   
