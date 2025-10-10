@@ -46,7 +46,6 @@ if __name__ == '__main__':
             deployments = k8s_lib.get_deployment_entities_count_for_service(namespace, kafka)
             ready_deployments = k8s_lib.get_active_deployment_entities_count_for_service(namespace, kafka)
             if backup_daemon:
-                print(f'Adding Kafka Backup Daemon to check')
                 deployments += k8s_lib.get_deployment_entities_count_for_service(namespace, backup_daemon)
                 ready_deployments += k8s_lib.get_active_deployment_entities_count_for_service(namespace, backup_daemon)
             print(f'[Check status] deployments: {deployments}, ready deployments: {ready_deployments}')
