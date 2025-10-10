@@ -82,8 +82,6 @@ spec:
               {{- end }}
             - name: KAFKA_HOST
               value: {{ .Values.integrationTests.kafkaHost }}
-            - name: BACKUP_DAEMON_HOST
-              value: {{ .Values.integrationTests.backupDaemonHost }}
             - name: KAFKA_PORT
               value: {{ .Values.integrationTests.kafkaPort | quote }}
             - name: KAFKA_ENABLE_SSL

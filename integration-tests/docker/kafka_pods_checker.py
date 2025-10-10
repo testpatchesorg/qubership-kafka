@@ -21,19 +21,15 @@ environ = os.environ
 managed_by_operator = environ.get("KAFKA_IS_MANAGED_BY_OPERATOR")
 external = environ.get("EXTERNAL_KAFKA") is not None
 namespace = environ.get("KAFKA_OS_PROJECT")
-kafka = environ.get("KAFKA_HOST")
-backup_daemon = environ.get("BACKUP_DAEMON_HOST")
+service = environ.get("KAFKA_HOST")
 timeout = 300
 
 if __name__ == '__main__':
     time.sleep(10)
     if external:
-        if not backup_daemon:
-            print(f'Kafka is external, there is no way to check its state')
-            time.sleep(30)
-            exit(0)
-        else:
-            print(f'Kafka is external, but Backup Daemon persist, checking its state')
+        print(f'Kafka is external, there is no way to check its state')
+        time.sleep(30)
+        exit(0)
     print("Checking Kafka deployments are ready")
     try:
         k8s_lib = PlatformLibrary(managed_by_operator)
@@ -43,11 +39,8 @@ if __name__ == '__main__':
     timeout_start = time.time()
     while time.time() < timeout_start + timeout:
         try:
-            deployments = k8s_lib.get_deployment_entities_count_for_service(namespace, kafka)
-            ready_deployments = k8s_lib.get_active_deployment_entities_count_for_service(namespace, kafka)
-            if backup_daemon:
-                deployments += k8s_lib.get_deployment_entities_count_for_service(namespace, backup_daemon)
-                ready_deployments += k8s_lib.get_active_deployment_entities_count_for_service(namespace, backup_daemon)
+            deployments = k8s_lib.get_deployment_entities_count_for_service(namespace, service)
+            ready_deployments = k8s_lib.get_active_deployment_entities_count_for_service(namespace, service)
             print(f'[Check status] deployments: {deployments}, ready deployments: {ready_deployments}')
         except Exception as e:
             print(e)
