@@ -64,7 +64,7 @@ jobs:
         with:
           default-template: "{{timestamp}}"
           default-tag: custom
-          extra-tags: patch,${{ github.event.client_payload.kafkka-version }}
+          extra-tags: patch,${{ github.event.client_payload.kafka-version }}
           replace-symbol: ${{ needs.prepare-inputs.outputs.replace_symbol }}
           ref: ${{ env.TARGET_REF }}
 
