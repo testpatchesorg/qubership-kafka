@@ -16,11 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       build_args: ${{ steps.set-vars.outputs.build_args }}
+      replace_symbol: ${{ steps.set-vars.outputs.replace_symbol }}
     steps:
       - name: Set Variables
         if: github.event_name == 'repository_dispatch' && github.event.action == 'kafka-patched-build'
         id: set-vars
         run: |
+          echo "replace_symbol=${REPLACE_SYMBOL}" >> $GITHUB_OUTPUT
           kafka_distro_tgz="${KAFKA_DISTRO_URL##*/}"
           echo 'build_args<<EOF' >> $GITHUB_OUTPUT
           echo "KAFKA_DISTRO_URL=${KAFKA_DISTRO_URL}" >> $GITHUB_OUTPUT
@@ -30,12 +32,14 @@ jobs:
         env:
           KAFKA_DISTRO_URL: ${{ github.event.client_payload.kafka-distro-url }}
           KAFKA_VERSION: ${{ github.event.client_payload.kafka-version }}
+          REPLACE_SYMBOL: ${{ github.event.client_payload.replace-symbol }}
       - name: Debug
         run: |
           echo "build_args: ${{ steps.set-vars.outputs.build_args }}"
 
   prepare:
     name: "Prepare Images and Metadata"
+    needs: [prepare-inputs]
     runs-on: ubuntu-latest
     env:
       TARGET_REF: ${{ github.event.client_payload.target-ref || github.ref }}
@@ -58,10 +62,10 @@ jobs:
         uses: netcracker/qubership-workflow-hub/actions/metadata-action@main
         id: meta
         with:
-          default-template: "{{ref-name}}"
-          extra-tags: ${{ github.event.inputs.tags }}
-          replace-symbol: ${{ github.event.inputs.replace-symbol }}
-          dry-run: ${{ inputs.dry-run }}
+          default-template: "{{timestamp}}"
+          default-tag: custom
+          extra-tags: patch,${{ github.event.client_payload.kafkka-version }}
+          replace-symbol: ${{ needs.prepare-inputs.outputs.replace_symbol }}
           ref: ${{ env.TARGET_REF }}
 
   build:
@@ -82,7 +86,6 @@ jobs:
         uses: netcracker/qubership-workflow-hub/actions/docker-action@0f2be042d7c833c6bf60df85732609b7991fb821 #2.0.0
         with:
           ref: ${{ env.TARGET_REF }}
-          dry-run: ${{ inputs.dry-run }}
           download-artifact: false
           component: ${{ toJson(matrix.component) }}
           platforms: ${{ needs.prepare.outputs.platforms }}
@@ -91,14 +94,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  Kafka-Pipeline:
-    needs: build
-    uses: Netcracker/qubership-test-pipelines/.github/workflows/kafka.yaml@78f8a355bf7b5b5b88a3339fa0a35c22645bef68
-    with:
-      service_branch: '${{ github.event.client_payload.target-ref || github.head_ref || github.ref }}'
-      versions_file: '.github/versions.yaml'
-      pipeline_branch: '78f8a355bf7b5b5b88a3339fa0a35c22645bef68' #this value must match the value after '@' in 'uses'
-    secrets:
-      AWS_S3_ACCESS_KEY_ID: ${{secrets.AWS_S3_ACCESS_KEY_ID}}
-      AWS_S3_ACCESS_KEY_SECRET: ${{secrets.AWS_S3_ACCESS_KEY_SECRET}}
-
+  # Kafka-Pipeline:
+  #   needs: build
+  #   uses: Netcracker/qubership-test-pipelines/.github/workflows/kafka.yaml@ad32edfdc745328e61b9b0eca992a68b91e96e20
+  #   with:
+  #     service_branch: '${{ github.event.client_payload.target-ref || github.head_ref || github.ref }}'
+  #     versions_file: '.github/versions.yaml'
+  #     pipeline_branch: 'ad32edfdc745328e61b9b0eca992a68b91e96e20' #this value must match the value after '@' in 'uses'
+  #   secrets:
+  #     AWS_S3_ACCESS_KEY_ID: ${{secrets.AWS_S3_ACCESS_KEY_ID}}
+  #     AWS_S3_ACCESS_KEY_SECRET: ${{secrets.AWS_S3_ACCESS_KEY_SECRET}}
