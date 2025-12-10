@@ -83,7 +83,7 @@ jobs:
           replace-symbol: ${{ env.REPLACE_SYMBOL }}
 
   build:
-    name: Build Docker Images
+    name: ${{ matrix.component.name }}
     needs: [prepare-inputs, prepare]
     runs-on: ubuntu-latest
     permissions:
