@@ -57,7 +57,7 @@ jobs:
 
           git add .
           git commit -m "[IBuild] Updated ${INTEGRATION_BUILD_BRANCH} by ${TARGET_REF} to build qubership-kafka images with patched kafka from ${KAFKA_DISTRO_URL}"
-          git push origin "${INTEGRATION_BUILD_BRANCH}"
+          git push -f -u origin "${INTEGRATION_BUILD_BRANCH}"
 
       - id: load
         run: |
