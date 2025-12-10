@@ -1,5 +1,5 @@
 name: Kafka Integration Build
-run-name: "Event: Tag ${{ github.event.client_payload.tag }} from ${{ github.event.client_payload.repo }}  #${{ github.run_number }}"
+run-name: "Event: Tag ${{ github.event.client_payload.tag }} from ${{ github.event.client_payload.repo }} || Branch: ${{ github.event.client_payload.target-ref || github.ref }}"
 permissions:
   contents: read
   packages: write
