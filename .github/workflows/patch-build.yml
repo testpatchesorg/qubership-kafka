@@ -67,6 +67,9 @@ jobs:
             git checkout -b ${INTEGRATION_BUILD_BRANCH} origin/${TARGET_REF}
           fi
 
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
           echo "$(date): [IBuild] Updated ${INTEGRATION_BUILD_BRANCH} by ${TARGET_REF} to build qubership-kafka images with patched kafka from ${KAFKA_DISTRO_URL}" >> patched-build.log
 
           git add .
