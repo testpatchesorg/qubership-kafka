@@ -20,32 +20,8 @@ env:
   REPLACE_SYMBOL: ${{ github.event.client_payload.replace-symbol }}
 
 jobs:
-  prepare-inputs:
-    runs-on: ubuntu-latest
-    outputs:
-      build_args: ${{ steps.set-vars.outputs.build_args }}
-    steps:
-      - name: Set Variables
-        if: github.event_name == 'repository_dispatch' && github.event.action == 'kafka-patched-build'
-        id: set-vars
-        run: |
-          kafka_distro_tgz="${KAFKA_DISTRO_URL##*/}"
-          echo 'build_args<<EOF' >> $GITHUB_OUTPUT
-          echo "KAFKA_DISTRO_URL=${KAFKA_DISTRO_URL}" >> $GITHUB_OUTPUT
-          echo "DISTRO_NAME=${kafka_distro_tgz%.*}" >> $GITHUB_OUTPUT
-          echo "KAFKA_VERSION=${KAFKA_VERSION}" >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
-
-      - name: Debug
-        run: |
-          echo "build_args: ${{ steps.set-vars.outputs.build_args }}"
-      - name: Show payload
-        run: |
-          echo "${{ toJson(github.event.client_payload) }}"
-
   prepare:
     name: "Prepare Images and Metadata"
-    needs: [prepare-inputs]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -53,7 +29,11 @@ jobs:
       components: ${{ steps.load.outputs.components }}
       platforms: ${{ steps.load.outputs.platforms }}
       tags: "${{ steps.meta.outputs.result }}"
+      kafka_major_version: ${{ steps.set-kafka-major-version.outputs.major }}
     steps:
+      - name: Show payload
+        run: |
+          echo "${{ toJson(github.event.client_payload) }}"
       - name: Checkout code
         uses: actions/checkout@v5
         with:
@@ -80,8 +60,8 @@ jobs:
 
       - id: load
         run: |
-          echo "components=$(jq -c '.components' .github/docker-build-config.json)" >> "$GITHUB_OUTPUT"
-          echo "platforms=$(jq -c '.platforms' .github/docker-build-config.json)" >> "$GITHUB_OUTPUT"
+          echo "components=$(jq -c '.components' .github/dev-build-config.cfg)" >> "$GITHUB_OUTPUT"
+          echo "platforms=$(jq -c '.platforms' .github/dev-build-config.cfg)" >> "$GITHUB_OUTPUT"
 
       - name: Create tags for images
         uses: netcracker/qubership-workflow-hub/actions/metadata-action@v2.0.5
@@ -93,9 +73,16 @@ jobs:
           extra-tags: ${{ github.event.client_payload.tag }}
           replace-symbol: ${{ env.REPLACE_SYMBOL }}
 
+      - name: Set Kafka Major Version
+        id: set-kafka-major-version
+        uses: netcracker/qubership-workflow-hub/actions/metadata-action@v2.0.5
+        with:
+          ref: ${{ env.KAFKA_VERSION }}
+          default-template: "{{ref-name}}"
+
   build:
     name: ${{ matrix.component.name }}
-    needs: [prepare-inputs, prepare]
+    needs: [prepare]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -105,6 +92,21 @@ jobs:
       matrix:
         component: ${{ fromJson(needs.prepare.outputs.components) }}
     steps:
+      - name: Set Variables
+        env:
+          DOCKER_KAFKA_VERSIONED_NAME: "qubership-docker-kafka-${{ needs.prepare.outputs.kafka_major_version }}"
+        if: github.event_name == 'repository_dispatch' && github.event.action == 'kafka-patched-build' && matrix.component.name == env.DOCKER_KAFKA_VERSIONED_NAME
+        id: set-vars
+        run: |
+          kafka_distro_tgz="${KAFKA_DISTRO_URL##*/}"
+          echo 'build_args<<EOF' >> $GITHUB_OUTPUT
+          echo "KAFKA_DISTRO_URL=${KAFKA_DISTRO_URL}" >> $GITHUB_OUTPUT
+          echo "DISTRO_NAME=${kafka_distro_tgz%.*}" >> $GITHUB_OUTPUT
+          echo "KAFKA_VERSION=${KAFKA_VERSION}" >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+          echo "build_args:"
+          cat $GITHUB_OUTPUT
+
       - name: Docker
         uses: netcracker/qubership-workflow-hub/actions/docker-action@v2.0.5
         with:
@@ -113,17 +115,18 @@ jobs:
           component: ${{ toJson(matrix.component) }}
           platforms: ${{ needs.prepare.outputs.platforms }}
           tags: ${{ needs.prepare.outputs.tags }}
-          build-args: ${{ needs.prepare-inputs.outputs.build_args }}
+          build-args: ${{ steps.set-vars.outputs.build_args }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # Kafka-Pipeline:
-  #   needs: build
-  #   uses: Netcracker/qubership-test-pipelines/.github/workflows/kafka.yaml@ad32edfdc745328e61b9b0eca992a68b91e96e20
-  #   with:
-  #     service_branch: '${{ github.event.client_payload.target-ref || github.head_ref || github.ref }}'
-  #     versions_file: '.github/versions.yaml'
-  #     pipeline_branch: 'ad32edfdc745328e61b9b0eca992a68b91e96e20' #this value must match the value after '@' in 'uses'
-  #   secrets:
-  #     AWS_S3_ACCESS_KEY_ID: ${{secrets.AWS_S3_ACCESS_KEY_ID}}
-  #     AWS_S3_ACCESS_KEY_SECRET: ${{secrets.AWS_S3_ACCESS_KEY_SECRET}}
+  Kafka-Pipeline:
+    needs: build
+    uses: Netcracker/qubership-test-pipelines/.github/workflows/kafka.yaml@d035050ec322700c3df9a7ec62efc0220abe4243  # v1.1.0
+    with:
+      repository_name: ${{ github.repository }}
+      service_branch: '${{ github.event.client_payload.target-ref || github.head_ref || github.ref }}'
+      versions_file: '.github/versions.yaml'
+      pipeline_branch: 'd035050ec322700c3df9a7ec62efc0220abe4243' #this value must match the value after '@' in 'uses'
+    secrets:
+      AWS_S3_ACCESS_KEY_ID: ${{secrets.AWS_S3_ACCESS_KEY_ID}}
+      AWS_S3_ACCESS_KEY_SECRET: ${{secrets.AWS_S3_ACCESS_KEY_SECRET}}
