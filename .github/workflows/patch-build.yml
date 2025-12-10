@@ -61,8 +61,15 @@ jobs:
 
       - id: load
         run: |
-          echo "components=$(jq -c '.components' .github/dev-build-config.cfg)" >> "$GITHUB_OUTPUT"
-          echo "platforms=$(jq -c '.platforms' .github/dev-build-config.cfg)" >> "$GITHUB_OUTPUT"
+          if [ -f .github/dev-build-config.cfg ];then
+            echo "components=$(jq -c '.components' .github/dev-build-config.cfg)" >> "$GITHUB_OUTPUT"
+            echo "platforms=$(jq -c '.platforms' .github/dev-build-config.cfg)" >> "$GITHUB_OUTPUT"
+            echo "Components: $(jq '.components' .github/dev-build-config.cfg)"
+            echo "Platforms: $(jq '.platforms' .github/dev-build-config.cfg)"
+          else
+            echo "Configuration file .github/dev-build-config.cfg not found."
+            exit 1
+          fi
 
       - name: Create tags for images
         uses: netcracker/qubership-workflow-hub/actions/metadata-action@v2.0.5
