@@ -47,6 +47,8 @@ jobs:
     name: "Prepare Images and Metadata"
     needs: [prepare-inputs]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       components: ${{ steps.load.outputs.components }}
       platforms: ${{ steps.load.outputs.platforms }}
