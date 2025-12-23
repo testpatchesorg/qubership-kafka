@@ -35,7 +35,7 @@ jobs:
       component: ${{ steps.load_component.outputs.components }}
       platforms: ${{ steps.load_component.outputs.platforms }}
     env:
-      CONFIG_FILE: .qubership/docker-build-config.cfg
+      CONFIG_FILE: .github/dev-build-config.cfg
     steps:
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
