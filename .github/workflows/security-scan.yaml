@@ -79,14 +79,11 @@ jobs:
           exit 1
       - name: Setup matrix
         id: matrix
+        env:
+          TAGS: ${{ case(github.event_name == 'workflow_dispatch', format('{{[ {0} ]}}', inputs.tag), '{["latest","main"]}') }}
         run: |
-          if [[ -z "${{ inputs.tag }}" ]]; then
-            echo 'tags="['latest', 'main']"'
-            echo 'tags="['latest', 'main']"' >> $GITHUB_OUTPUT
-          else
-            echo 'tags="['${{ inputs.tag }}']"'
-            echo 'tags="['${{ inputs.tag }}']"' >> $GITHUB_OUTPUT
-          fi
+            echo "tags=${TAGS}"
+            echo "tags=${TAGS}" >> $GITHUB_OUTPUT
   security-scan-matrix:
     needs: debug-packages
     if: ${{ inputs.image == '' || inputs.image == null }}
