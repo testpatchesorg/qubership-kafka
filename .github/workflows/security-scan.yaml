@@ -80,7 +80,13 @@ jobs:
       - name: Setup matrix
         id: matrix
         run: |
-          echo 'tags="[ ${{ inputs.tag || 'latest, main' }} ]"' >> $GITHUB_OUTPUT
+          if [[ -z "${{ inputs.tag }}" ]]; then
+            echo 'tags="['latest', 'main']"'
+            echo 'tags="['latest', 'main']"' >> $GITHUB_OUTPUT
+          else
+            echo 'tags="['${{ inputs.tag }}']"'
+            echo 'tags="['${{ inputs.tag }}']"' >> $GITHUB_OUTPUT
+          fi
   security-scan-matrix:
     needs: debug-packages
     if: ${{ inputs.image == '' || inputs.image == null }}
