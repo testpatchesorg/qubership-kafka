@@ -2,6 +2,7 @@ name: Security Scan Docker Packages
 run-name: >
   Security Scan #${{ github.run_number }} for ${{ inputs.image != '' && inputs.image != null && inputs.image || 'all repository docker images' }}
 on:
+  push: {}
   workflow_dispatch:
     inputs:
       target:
@@ -94,7 +95,7 @@ jobs:
     strategy:
       matrix:
         package: ${{ fromJson(needs.debug-packages.outputs.packages) }}
-        tag: ${{ needs.debug-packages.outputs.tags }}
+        tag: ${{ case(github.event_name == 'workflow_dispatch', inputs.tag, fromJson('["latest","main"]')) }}
 
     name: "Run Security Scan (matrix)"
     uses: netcracker/qubership-workflow-hub/.github/workflows/re-security-scan.yml@6b356d28e46b2d4683cccb1d91f92643d7f0c513 #v2.0.11
