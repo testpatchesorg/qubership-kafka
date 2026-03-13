@@ -58,7 +58,6 @@ jobs:
     outputs:
       packages: ${{ steps.ghcr.outputs.packages }}
       has-packages: ${{ steps.ghcr.outputs.has-packages }}
-      tags: ${{ steps.matrix.outputs.tags }}
     steps:
       - name: List GHCR packages for this repo
         id: ghcr
@@ -78,13 +77,7 @@ jobs:
         run: |
           echo "No packages found in GHCR for this repository."
           exit 1
-      - name: Setup matrix
-        id: matrix
-        env:
-          TAGS: ${{ case(github.event_name == 'workflow_dispatch', format('[{0}]', inputs.tag), '[latest,main]') }}
-        run: |
-            echo "tags=${TAGS}"
-            echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+
   security-scan-matrix:
     needs: debug-packages
     if: ${{ inputs.image == '' || inputs.image == null }}
@@ -93,11 +86,12 @@ jobs:
       packages: read
       contents: read
     strategy:
+      fail-fast: false
       matrix:
         package: ${{ fromJson(needs.debug-packages.outputs.packages) }}
         tag: ${{ case(github.event_name == 'workflow_dispatch', inputs.tag, fromJson('["latest","main"]')) }}
 
-    name: "Run Security Scan (matrix)"
+    name: "${{ format('{0}:{1}', matrix.package.path, matrix.tag) }}"
     uses: netcracker/qubership-workflow-hub/.github/workflows/re-security-scan.yml@6b356d28e46b2d4683cccb1d91f92643d7f0c513 #v2.0.11
     with:
       target: ${{ inputs.target || 'docker' }}
