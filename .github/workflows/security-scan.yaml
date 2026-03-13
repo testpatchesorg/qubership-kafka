@@ -80,7 +80,7 @@ jobs:
       - name: Setup matrix
         id: matrix
         env:
-          TAGS: ${{ case(github.event_name == 'workflow_dispatch', format('{{[ {0} ]}}', inputs.tag), '{["latest","main"]}') }}
+          TAGS: ${{ case(github.event_name == 'workflow_dispatch', format('[{0}]', inputs.tag), '[latest,main]') }}
         run: |
             echo "tags=${TAGS}"
             echo "tags=${TAGS}" >> $GITHUB_OUTPUT
