@@ -96,6 +96,11 @@ jobs:
     with:
       target: ${{ inputs.target || 'docker' }}
       image: ${{ format('{0}:{1}', matrix.package.path, matrix.tag) }}
+      only-high-critical: ${{ case(github.event_name == 'workflow_dispatch', inputs.only-high-critical, true) }}
+      trivy-scan: ${{ case(github.event_name == 'workflow_dispatch', inputs.trivy-scan, true) }}
+      grype-scan: ${{ case(github.event_name == 'workflow_dispatch', inputs.grype-scan, true) }}
+      only-fixed: ${{ case(github.event_name == 'workflow_dispatch', inputs.only-fixed, true) }}
+      continue-on-error: ${{ case(github.event_name == 'workflow_dispatch', inputs.continue-on-error, true) }}
 
   security-scan-single:
     needs: debug-packages
